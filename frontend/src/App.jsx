@@ -15,35 +15,58 @@ const Navbar = () => {
   if (isPublicPage) return null;
 
   return (
-    <nav className="navbar" style={{
-      borderBottom: '1px solid var(--border)',
-      padding: '0 2rem',
-      height: '70px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      background: '#fff'
-    }}>
-      <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <nav className="navbar">
+      <div className="nav-left">
+        <Link to="/" className="brand">
           <Clock size={28} /> Candely
         </Link>
-        <div style={{ display: 'flex', gap: '1.5rem' }}>
+        <div className="nav-links">
           <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Event Types</Link>
           <Link to="/meetings" className={`nav-link ${location.pathname === '/meetings' ? 'active' : ''}`}>Meetings</Link>
           <Link to="/availability" className={`nav-link ${location.pathname === '/availability' ? 'active' : ''}`}>Availability</Link>
         </div>
       </div>
       <div className="nav-right">
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--primary-light)' }}>
-          <img src="/pfp.png" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div className="avatar">
+          <img src="/pfp.png" alt="Profile" />
         </div>
       </div>
       <style>{`
+        .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0 4rem;
+          height: 80px;
+          background: white;
+          border-bottom: 1px solid var(--border);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+        .nav-left {
+          display: flex;
+          alignItems: center;
+          gap: 3rem;
+        }
+        .brand {
+          fontSize: 1.5rem;
+          fontWeight: 800;
+          color: var(--primary);
+          display: flex;
+          alignItems: center;
+          gap: 0.75rem;
+          textDecoration: none;
+        }
+        .nav-links {
+          display: flex;
+          gap: 2rem;
+        }
         .nav-link {
           color: var(--text-muted);
           font-weight: 500;
           padding: 0.5rem 0;
+          text-decoration: none;
           border-bottom: 2px solid transparent;
           transition: var(--transition);
         }
@@ -52,6 +75,18 @@ const Navbar = () => {
         }
         .nav-link.active {
           border-bottom-color: var(--primary);
+        }
+        .avatar {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 2px solid var(--primary-light);
+        }
+        .avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
       `}</style>
     </nav>
