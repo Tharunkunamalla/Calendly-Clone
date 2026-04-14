@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Lock, Mail, ChevronDown, User as UserIcon, ShieldInfo } from 'lucide-react';
+import { Lock, Mail, ChevronDown, User as UserIcon, ShieldCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('admin@candely.com');
@@ -71,7 +71,7 @@ const LoginPage = () => {
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 1rem', background: 'white', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                {role === 'admin' ? <ShieldInfo size={18} color="var(--primary)" /> : <UserIcon size={18} />}
+                {role === 'admin' ? <ShieldCheck size={18} color="var(--primary)" /> : <UserIcon size={18} />}
                 <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{role} Account</span>
               </div>
               <ChevronDown size={18} />
@@ -82,7 +82,7 @@ const LoginPage = () => {
                   className="dropdown-item" 
                   onClick={() => { setRole('admin'); setEmail('admin@candely.com'); setShowRoleMenu(false); }}
                 >
-                  <ShieldInfo size={16} /> Admin
+                  <ShieldCheck size={16} /> Admin
                 </div>
                 <div 
                   className="dropdown-item" 
