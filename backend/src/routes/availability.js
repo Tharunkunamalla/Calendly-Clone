@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
+const auth = require('../middleware/auth');
 
-// Get all availability slots
-router.get('/', async (req, res) => {
+// Get all availability slots (Admin only)
+router.get('/', auth, async (req, res) => {
   try {
     const availability = await prisma.availability.findMany({
       orderBy: { dayOfWeek: 'asc' },
@@ -14,8 +15,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Update or create availability slots (bulk update)
-router.post('/bulk', async (req, res) => {
+// Update or create availability slots (bulk update - Admin only)
+router.post('/bulk', auth, async (req, res) => {
   try {
     const { slots } = req.body; // Array of { dayOfWeek, startTime, endTime, timezone }
     

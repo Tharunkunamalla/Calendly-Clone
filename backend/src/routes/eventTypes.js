@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
+const auth = require('../middleware/auth');
 
-// Get all event types
-router.get('/', async (req, res) => {
+// Get all event types (Admin only)
+router.get('/', auth, async (req, res) => {
   try {
     const eventTypes = await prisma.eventType.findMany({
       orderBy: { createdAt: 'desc' },
@@ -28,8 +29,8 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
-// Create event type
-router.post('/', async (req, res) => {
+// Create event type (Admin only)
+router.post('/', auth, async (req, res) => {
   try {
     const { name, slug, duration, description, color } = req.body;
     const eventType = await prisma.eventType.create({
@@ -56,8 +57,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete event type
-router.delete('/:id', async (req, res) => {
+// Delete event type (Admin only)
+router.delete('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.eventType.delete({ where: { id } });
