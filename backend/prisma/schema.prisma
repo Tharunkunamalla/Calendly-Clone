@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model EventType {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  duration    Int       // in minutes
+  description String?
+  color       String    @default("#006bff")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  meetings    Meeting[]
+}
+
+model Availability {
+  id        String   @id @default(uuid())
+  dayOfWeek Int      // 0 (Sunday) to 6 (Saturday)
+  startTime String   // "09:00"
+  endTime   String   // "17:00"
+  timezone  String   @default("UTC")
+}
+
+model Meeting {
+  id           String    @id @default(uuid())
+  inviteeName  String
+  inviteeEmail String
+  startTime    DateTime
+  endTime      DateTime
+  status       String    @default("confirmed") // confirmed, cancelled
+  eventTypeId  String
+  eventType    EventType @relation(fields: [eventTypeId], references: [id])
+  createdAt    DateTime  @default(now())
+}
