@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Globe, Info } from 'lucide-react';
 import { availabilityApi } from '../utils/api';
+import { toast } from 'react-toastify';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -44,9 +45,9 @@ const Availability = () => {
         timezone: 'UTC'
       }));
       await availabilityApi.updateBulk(enabledSlots);
-      alert('Availability saved successfully!');
+      toast.success('Availability saved successfully!');
     } catch (error) {
-      alert('Failed to save availability');
+      toast.error('Failed to save availability');
     } finally {
       setSaving(false);
     }

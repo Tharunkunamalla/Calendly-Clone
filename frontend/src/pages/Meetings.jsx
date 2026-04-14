@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Calendar, User, Mail, XCircle, Clock, ChevronRight } from 'lucide-react';
 import { meetingApi } from '../utils/api';
+import { toast } from 'react-toastify';
 
 const Meetings = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -30,9 +31,10 @@ const Meetings = () => {
     if (window.confirm('Are you sure you want to cancel this meeting?')) {
       try {
         await meetingApi.cancel(id);
+        toast.info('Meeting cancelled');
         fetchMeetings();
       } catch (error) {
-        alert('Failed to cancel meeting');
+        toast.error('Failed to cancel meeting');
       }
     }
   };

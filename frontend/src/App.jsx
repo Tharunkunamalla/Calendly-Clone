@@ -6,6 +6,8 @@ import Availability from './pages/Availability';
 import Meetings from './pages/Meetings';
 import PublicBooking from './pages/PublicBooking';
 import BookingConfirmation from './pages/BookingConfirmation';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './styles/global.css';
 
 const Navbar = () => {
@@ -17,9 +19,19 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Candely" style={{ height: '32px', marginRight: '0.75rem' }} />
-          <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#1a1a1a', letterSpacing: '-0.03em' }}>Candely</span>
+        <Link to="/" className="brand" style={{ 
+          textDecoration: 'none', 
+          display: 'flex', 
+          alignItems: 'center',
+          gap: '0.5rem' 
+        }}>
+          <span style={{ 
+            fontSize: '1.6rem', 
+            fontWeight: '900', 
+            color: 'var(--primary)', 
+            letterSpacing: '-0.04em',
+            fontFamily: "'Outfit', sans-serif"
+          }}>Candely</span>
         </Link>
         <div className="nav-links">
           <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Event Types</Link>
@@ -108,6 +120,7 @@ const App = () => {
             <Route path="/p/:slug/confirm" element={<BookingConfirmation />} />
           </Routes>
         </main>
+        <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} />
       </div>
     </Router>
   );

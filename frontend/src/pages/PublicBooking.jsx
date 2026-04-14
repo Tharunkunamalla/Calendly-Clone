@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, eachDayOfInterval, isPast, isToday } from 'date-fns';
-import { ChevronLeft, ChevronRight, Clock, Globe } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Globe, Calendar } from 'lucide-react';
 import { eventTypeApi, meetingApi } from '../utils/api';
+import { toast } from 'react-toastify';
 
 const PublicBooking = () => {
   const { slug } = useParams();
@@ -59,9 +60,10 @@ const PublicBooking = () => {
         startTime: selectedSlot,
         eventTypeId: eventType.id
       });
+      toast.success('Event scheduled successfully!');
       navigate(`/p/${slug}/confirm?name=${formData.name}&email=${formData.email}&time=${selectedSlot}`);
     } catch (error) {
-      alert(error.response?.data?.error || 'Booking failed');
+      toast.error(error.response?.data?.error || 'Booking failed. Please try again.');
     } finally {
       setBooking(false);
     }

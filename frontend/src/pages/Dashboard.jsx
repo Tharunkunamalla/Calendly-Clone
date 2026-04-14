@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Settings, Copy, Trash2, ExternalLink, Users, Calendar as CalendarIcon } from 'lucide-react';
 import { eventTypeApi, meetingApi } from '../utils/api';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const [eventTypes, setEventTypes] = useState([]);
@@ -32,25 +33,27 @@ const Dashboard = () => {
       await eventTypeApi.create(newType);
       setShowModal(false);
       setNewType({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
+      toast.success('Event type created successfully!');
       fetchData();
     } catch (error) {
-      alert('Failed to create event type. Make sure the slug is unique.');
+      toast.error('Failed to create event type. Make sure the slug is unique.');
     }
   };
 
   const copyLink = (slug) => {
     const url = `${window.location.origin}/p/${slug}`;
     navigator.clipboard.writeText(url);
-    alert('Link copied to clipboard!');
+    toast.info('Link copied to clipboard!');
   };
 
   const deleteEventType = async (id) => {
     if (window.confirm('Are you sure you want to delete this event type?')) {
       try {
         await eventTypeApi.delete(id);
+        toast.success('Event type deleted');
         fetchData();
       } catch (error) {
-        alert('Failed to delete event type');
+        toast.error('Failed to delete event type');
       }
     }
   };

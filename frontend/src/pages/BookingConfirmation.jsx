@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Calendar, User, Mail, Clock } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 const BookingConfirmation = () => {
   const [searchParams] = useSearchParams();
@@ -22,7 +22,18 @@ const BookingConfirmation = () => {
         <div style={{ background: '#fdfdfd', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '1.5rem', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', fontWeight: 'bold' }}>
             <Calendar size={18} style={{ color: 'var(--text-muted)' }} />
-            <span>{time ? format(new Date(time), 'h:mma, EEEE, MMMM do, yyyy') : 'Loading...'}</span>
+            <span>
+              {(() => {
+                try {
+                  if (!time) return 'Loading...';
+                  // Fix for potentially malformed ISO strings in URL
+                  const normalizedTime = time.replace(/\./g, ':');
+                  return format(parseISO(normalizedTime), 'h:mma, EEEE, MMMM do, yyyy');
+                } catch (e) {
+                  return 'Invalid Date';
+                }
+              })()}
+            </span>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <Clock size={18} style={{ color: 'var(--text-muted)' }} />
