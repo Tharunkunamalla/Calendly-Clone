@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Settings, Copy, Trash2, ExternalLink, Users, Calendar as CalendarIcon } from 'lucide-react';
+import { 
+  Plus, Settings, Copy, Trash2, ExternalLink, Users, 
+  Calendar as CalendarIcon, Link as LinkIcon, Mail, 
+  Share2, MoreVertical, X, Clock, Video, Globe
+} from 'lucide-react';
 import { eventTypeApi, meetingApi } from '../utils/api';
 import { toast } from 'react-toastify';
 
@@ -7,12 +11,17 @@ const Dashboard = () => {
   const [eventTypes, setEventTypes] = useState([]);
   const [upcomingCount, setUpcomingCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showSidePanel, setShowSidePanel] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [formData, setFormData] = useState({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
 
   useEffect(() => {
     fetchData();
+    
+    // Listen for create events from sidebar
+    const handleOpenNew = () => openPanel();
+    window.addEventListener('open-new-event', handleOpenNew);
+    return () => window.removeEventListener('open-new-event', handleOpenNew);
   }, []);
 
   const fetchData = async () => {
@@ -38,7 +47,7 @@ const Dashboard = () => {
         await eventTypeApi.create(formData);
         toast.success('Event type created successfully!');
       }
-      setShowModal(false);
+      setShowSidePanel(false);
       setEditingEvent(null);
       setFormData({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
       fetchData();
@@ -47,25 +56,32 @@ const Dashboard = () => {
     }
   };
 
-  const openEdit = (event) => {
-    setEditingEvent(event);
-    setFormData({
-      name: event.name,
-      slug: event.slug,
-      duration: event.duration,
-      description: event.description || '',
-      color: event.color
-    });
-    setShowModal(true);
+  const openPanel = (event = null) => {
+    if (event) {
+      setEditingEvent(event);
+      setFormData({
+        name: event.name,
+        slug: event.slug,
+        duration: event.duration,
+        description: event.description || '',
+        color: event.color
+      });
+    } else {
+      setEditingEvent(null);
+      setFormData({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
+    }
+    setShowSidePanel(true);
   };
 
-  const copyLink = (slug) => {
+  const copyLink = (e, slug) => {
+    e.stopPropagation();
     const url = `${window.location.origin}/p/${slug}`;
     navigator.clipboard.writeText(url);
     toast.info('Link copied to clipboard!');
   };
 
-  const deleteEventType = async (id) => {
+  const deleteEventType = async (e, id) => {
+    e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this event type?')) {
       try {
         await eventTypeApi.delete(id);
@@ -78,152 +94,145 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="animate-fade-in" style={{ background: '#fff' }}>
-      <header style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'flex-end', 
-        marginBottom: '3rem',
-        paddingBottom: '1.5rem',
-        borderBottom: '1px solid var(--border)'
-      }}>
-        <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: '800', tracking: '-0.02em', marginBottom: '0.5rem' }}>Event Types</h1>
-          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', color: 'var(--text-muted)' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Users size={16} /> User: <strong>Default Admin</strong>
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CalendarIcon size={16} /> <strong>{upcomingCount}</strong> Upcoming meetings
-            </span>
-          </div>
+    <div className="animate-fade-in">
+      <header style={{ marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: '800' }}>Event Types</h1>
+          <button className="btn btn-primary" onClick={() => openPanel()} style={{ borderRadius: '100px', padding: '0.75rem 1.5rem' }}>
+            <Plus size={20} /> New Event Type
+          </button>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)} style={{ padding: '0.8rem 1.5rem', borderRadius: '40px' }}>
-          <Plus size={20} /> New Event Type
-        </button>
+        <div style={{ display: 'flex', gap: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+             <div className="avatar-small" style={{ width: '24px', height: '24px', fontSize: '0.7rem' }}>A</div> 
+             User: <strong>Admin</strong>
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CalendarIcon size={16} /> <strong>{upcomingCount}</strong> Upcoming meetings
+          </span>
+        </div>
       </header>
 
       {loading ? (
-        <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading your dashboard...</div>
+        <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
       ) : eventTypes.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '5rem', border: '2px dashed var(--border)', borderRadius: '12px' }}>
+        <div style={{ textAlign: 'center', padding: '5rem', border: '2px dashed var(--border)', borderRadius: '16px' }}>
           <h2 style={{ marginBottom: '1rem' }}>No event types yet</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Create your first event type to start scheduling meetings.</p>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>Create your first event</button>
+          <button className="btn btn-primary" onClick={() => openPanel()}>Create your first event</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+        <div className="event-list">
           {eventTypes.map((event) => (
-            <div key={event.id} className="card" style={{ 
-              padding: 0, 
-              overflow: 'hidden', 
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              borderColor: 'var(--border)'
-            }}>
-              <div style={{ height: '8px', background: event.color }} />
-              <div style={{ padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-                  <button 
-                    onClick={() => openEdit(event)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', color: 'var(--text-muted)' }}
-                    title="Edit Event"
-                  >
-                    <Settings size={18} />
-                  </button>
+            <div key={event.id} className="event-row" onClick={() => openPanel(event)}>
+              <div className="event-row-indicator" style={{ background: event.color }} />
+              <div className="event-row-info">
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{event.name}</h3>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  <span>{event.duration} min</span>
+                  <span>•</span>
+                  <span>One-on-One</span>
+                  <span>•</span>
+                  <a href={`/p/${event.slug}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>View landing page</a>
                 </div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.5rem' }}>{event.name}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
-                  {event.duration} mins, One-on-One
-                </p>
-                <a 
-                  href={`/p/${event.slug}`} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
-                >
-                  View booking page <ExternalLink size={14} />
-                </a>
               </div>
-              
-              <div style={{ 
-                background: '#fafbfb', 
-                padding: '1rem 1.5rem', 
-                borderTop: '1px solid var(--border)', 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center' 
-              }}>
-                <button className="btn btn-ghost" onClick={() => copyLink(event.slug)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+              <div className="event-row-actions">
+                <div className="row-icon-group">
+                  <CalendarIcon size={18} />
+                  <Mail size={18} />
+                  <Share2 size={18} />
+                  <LinkIcon size={18} />
+                </div>
+                <button className="btn btn-outline" onClick={(e) => copyLink(e, event.slug)} style={{ borderRadius: '100px', fontSize: '0.85rem' }}>
                   <Copy size={16} /> Copy link
                 </button>
-                <button className="btn btn-ghost" onClick={() => deleteEventType(event.id)} style={{ color: '#ff4d4d', padding: '0.4rem' }}>
-                  <Trash2 size={18} />
-                </button>
+                <div style={{ position: 'relative' }}>
+                  <button className="btn btn-ghost" onClick={(e) => deleteEventType(e, event.id)} style={{ color: '#ff4d4d' }}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modern Centered Modal */}
-      {showModal && (
-        <div style={{ 
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-        }}>
-          <div className="card" style={{ 
-            width: '100%', maxWidth: '520px', borderRadius: '12px', padding: '2.5rem',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' 
-          }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>
-              {editingEvent ? 'Edit Event Type' : 'New Event Type'}
-            </h2>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Event Name</label>
-                <input type="text" className="form-input" required value={formData.name} 
-                  onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Discovery Call" />
+      {/* Slide-over Side Panel */}
+      {showSidePanel && (
+        <div className="side-panel-overlay" onClick={() => setShowSidePanel(false)}>
+          <div className="side-panel" onClick={e => e.stopPropagation()}>
+            <div className="side-panel-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: formData.color }} />
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '800' }}>{editingEvent ? 'Edit Event Type' : 'New Event Type'}</h2>
               </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">URL Slug</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.6rem 0.8rem' }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>/p/</span>
-                  <input type="text" style={{ border: 'none', outline: 'none', width: '100%', fontSize: '1rem' }} required 
-                    value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} placeholder="meeting-link" />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Duration</label>
-                  <select className="form-input" value={formData.duration} onChange={e => setFormData({...formData, duration: parseInt(e.target.value)})}>
-                    <option value="15">15 mins</option>
-                    <option value="30">30 mins</option>
-                    <option value="60">60 mins</option>
-                  </select>
-                </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Color Theme</label>
-                  <div style={{ display: 'flex', gap: '0.5rem', height: '40px', alignItems: 'center' }}>
-                    {['#006bff', '#1a1a1a', '#ff4f00', '#2ecc71', '#9b59b6'].map(color => (
-                      <div key={color} onClick={() => setFormData({...formData, color})}
-                        style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: color, cursor: 'pointer',
-                          border: formData.color === color ? '2px solid #fff' : 'none',
-                          boxShadow: formData.color === color ? '0 0 0 2px ' + color : 'none' }} />
-                    ))}
+              <button className="btn btn-ghost" onClick={() => setShowSidePanel(false)} style={{ padding: '0.5rem' }}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="side-panel-content">
+               <form id="event-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Event Name</label>
+                    <input type="text" className="form-input" required value={formData.name} 
+                      onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Discovery Call" />
                   </div>
-                </div>
-              </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                <button type="button" className="btn btn-ghost" onClick={() => { setShowModal(false); setEditingEvent(null); }}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 2rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Duration</label>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                       {[15, 30, 45, 60].map(m => (
+                          <button key={m} type="button" 
+                            onClick={() => setFormData({...formData, duration: m})}
+                            className={`btn ${formData.duration === m ? 'btn-primary' : 'btn-outline'}`}
+                            style={{ flex: 1, padding: '0.75rem' }}
+                          >
+                            {m}m
+                          </button>
+                       ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Location</label>
+                    <div className="card" style={{ padding: '1rem', background: '#f8fafc', borderStyle: 'dashed' }}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-muted)' }}>
+                          <Video size={20} /> Add a video conferencing link
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">URL Slug</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>candely.com/p/</span>
+                      <input type="text" style={{ border: 'none', outline: 'none', width: '100%', fontSize: '1rem', fontWeight: '600' }} required 
+                        value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Color</label>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      {['#006bff', '#1a1a1a', '#ff4f00', '#2ecc71', '#9b59b6', '#f1c40f'].map(color => (
+                        <div key={color} onClick={() => setFormData({...formData, color})}
+                          style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: color, cursor: 'pointer',
+                            border: formData.color === color ? '3px solid white' : 'none',
+                            boxShadow: formData.color === color ? '0 0 0 2px ' + color : 'none' }} />
+                      ))}
+                    </div>
+                  </div>
+               </form>
+            </div>
+
+            <div className="side-panel-footer">
+              <button type="button" className="btn btn-ghost" onClick={() => setShowSidePanel(false)}>Cancel</button>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button type="submit" form="event-form" className="btn btn-primary" style={{ padding: '0.8rem 2.5rem', borderRadius: '100px' }}>
                   {editingEvent ? 'Save Changes' : 'Create Event'}
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
