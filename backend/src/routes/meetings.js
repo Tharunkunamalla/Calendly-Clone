@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../lib/prisma');
+const auth = require('../middleware/auth');
 const { startOfDay, endOfDay, addMinutes, format, parseISO, isWithinInterval, isBefore } = require('date-fns');
 
-// Get meetings (upcoming or past)
-router.get('/', async (req, res) => {
+// Get meetings (upcoming or past) - Admin only
+router.get('/', auth, async (req, res) => {
   try {
     const { type } = req.query; // 'upcoming' or 'past'
     const now = new Date();
