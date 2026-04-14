@@ -8,8 +8,6 @@ import { Lock, Mail, ChevronDown, User as UserIcon, ShieldCheck } from 'lucide-r
 const LoginPage = () => {
   const [email, setEmail] = useState('admin@candely.com');
   const [password, setPassword] = useState('admin123');
-  const [role, setRole] = useState('admin');
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -20,124 +18,85 @@ const LoginPage = () => {
     try {
       const { data } = await authApi.login(email, password);
       login(data.token);
-      toast.success('Login successful! Welcome back.');
+      toast.success('Login successful!');
       navigate('/');
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed. Please check your credentials.');
+      toast.error(error.response?.data?.error || 'Login failed.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: '#f8fafc' }}>
-      {/* Left Decoration */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4rem', background: 'white', borderRight: '1px solid var(--border)' }}>
-         <div style={{ marginBottom: '4rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <div className="brand-logo">C</div>
-              <span className="brand-text">Candely</span>
-            </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--text-main)', lineHeight: 1.1, marginBottom: '2rem' }}>
-              Simplify scheduling for your team.
-            </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '400px' }}>
-              The most intuitive way to manage invitations, meetings and availability in one premium place.
-            </p>
-         </div>
-         
-         <div className="card" style={{ padding: '2rem', background: 'var(--primary-light)', border: 'none' }}>
-            <h3 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Admin Dashboard</h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--primary)', opacity: 0.8 }}>
-              Manage meeting types, team availability, and analytics from your centralized portal.
-            </p>
-         </div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'white' }}>
+      
+      {/* Top minimal header */}
+      <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#006bff', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>C</div>
+          <span style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1e293b' }}>Candely</span>
+        </div>
       </div>
 
-      {/* Right Form */}
-      <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ maxWidth: '440px', width: '100%', padding: '0 2rem' }}>
-          <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>Log in to your account</h2>
-            <p style={{ color: 'var(--text-muted)' }}>Welcome back! Please enter your details.</p>
-          </div>
+      {/* Main Form Center */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '4rem' }}>
+        <div style={{ maxWidth: '400px', width: '100%', padding: '0 1.5rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#1e293b', marginBottom: '0.5rem', textAlign: 'center' }}>Welcome back</h2>
+          <p style={{ color: '#64748b', textAlign: 'center', marginBottom: '2.5rem', fontSize: '0.95rem' }}>Log in to your account to continue</p>
 
-          {/* Role Dropdown */}
-          <div style={{ marginBottom: '2rem', position: 'relative' }}>
-            <label className="form-label">Account Type</label>
-            <button 
-              type="button"
-              onClick={() => setShowRoleMenu(!showRoleMenu)}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 1rem', background: 'white', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                {role === 'admin' ? <ShieldCheck size={18} color="var(--primary)" /> : <UserIcon size={18} />}
-                <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{role} Account</span>
-              </div>
-              <ChevronDown size={18} />
-            </button>
-            {showRoleMenu && (
-              <div className="card" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, padding: '0.5rem', marginTop: '0.5rem', boxShadow: 'var(--shadow-md)' }}>
-                <div 
-                  className="dropdown-item" 
-                  onClick={() => { setRole('admin'); setEmail('admin@candely.com'); setShowRoleMenu(false); }}
-                >
-                  <ShieldCheck size={16} /> Admin
-                </div>
-                <div 
-                  className="dropdown-item" 
-                  onClick={() => { setRole('user'); setEmail('user@example.com'); setShowRoleMenu(false); }}
-                >
-                  <UserIcon size={16} /> Standard User
-                </div>
-              </div>
-            )}
-          </div>
-
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: '700', color: '#1e293b' }}>Email Address</label>
               <div style={{ position: 'relative' }}>
-                <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                 <input 
                   type="email" 
-                  className="form-input" 
-                  style={{ paddingLeft: '40px' }}
                   required 
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="name@company.com"
+                  style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', fontSize: '0.95rem', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', color: '#1e293b', transition: '0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                  onFocus={e => { e.target.style.borderColor = '#006bff'; e.target.style.boxShadow = '0 0 0 3px rgba(0,107,255,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#cbd5e1'; e.target.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; }}
                 />
               </div>
             </div>
 
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
-                <a href="#" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: '700', color: '#1e293b' }}>Password</label>
+                <a href="#" style={{ fontSize: '0.8rem', color: '#006bff', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</a>
               </div>
               <div style={{ position: 'relative' }}>
-                <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                 <input 
                   type="password" 
-                  className="form-input" 
-                  style={{ paddingLeft: '40px' }}
                   required 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', fontSize: '0.95rem', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none', color: '#1e293b', transition: '0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                  onFocus={e => { e.target.style.borderColor = '#006bff'; e.target.style.boxShadow = '0 0 0 3px rgba(0,107,255,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#cbd5e1'; e.target.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; }}
                 />
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem', marginTop: '1rem' }} disabled={loading}>
-              {loading ? 'Authenticating...' : 'Sign in'}
+            <button 
+              type="submit" 
+              disabled={loading}
+              style={{ padding: '0.9rem', fontSize: '1rem', fontWeight: '700', background: '#006bff', color: 'white', borderRadius: '100px', border: 'none', cursor: 'pointer', marginTop: '0.5rem', transition: '0.2s', boxShadow: '0 4px 6px -1px rgba(0, 107, 255, 0.2)' }}
+              onMouseOver={e => e.target.style.background = '#0056cc'}
+              onMouseOut={e => e.target.style.background = '#006bff'}
+            >
+              {loading ? 'Authenticating...' : 'Log in'}
             </button>
           </form>
           
           <div style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Don't have an account? </span>
-            <a href="#" style={{ color: 'var(--primary)', fontWeight: '700', textDecoration: 'none' }}>Start free trial</a>
+            <span style={{ color: '#64748b' }}>Don't have an account? </span>
+            <a href="#" style={{ color: '#006bff', fontWeight: '700', textDecoration: 'none' }}>Sign up</a>
           </div>
         </div>
       </div>

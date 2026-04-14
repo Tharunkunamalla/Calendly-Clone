@@ -2,34 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Settings, Copy, Trash2, ExternalLink, Users, 
   Calendar as CalendarIcon, Link as LinkIcon, Mail, 
-  Share2, MoreVertical, X, Clock, Video, Globe
+  Share2, MoreVertical, X, Clock, Video, Globe,
+  HelpCircle, ChevronDown, UserPlus, Info, ChevronUp,
+  MapPin, Phone, User, MessageCircle
 } from 'lucide-react';
 import { eventTypeApi, meetingApi } from '../utils/api';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const [eventTypes, setEventTypes] = useState([]);
-  const [upcomingCount, setUpcomingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showSidePanel, setShowSidePanel] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [formData, setFormData] = useState({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
+  const [formData, setFormData] = useState({ name: '', slug: '', duration: 30, description: '', color: '#006bff', location: 'Phone call' });
+  const [activeTab, setActiveTab] = useState('event-types');
+  const [expandedSection, setExpandedSection] = useState('duration');
 
   useEffect(() => {
     fetchData();
-    
-    // Listen for create events from sidebar
     const handleOpenNew = () => openPanel();
     window.addEventListener('open-new-event', handleOpenNew);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('create') === 'true') {
+      setTimeout(() => openPanel(), 100);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     return () => window.removeEventListener('open-new-event', handleOpenNew);
   }, []);
 
   const fetchData = async () => {
     try {
       const { data: events } = await eventTypeApi.getAll();
-      const { data: meetings } = await meetingApi.getUpcoming();
       setEventTypes(events);
-      setUpcomingCount(meetings.length);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -40,198 +46,232 @@ const Dashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const dataToSubmit = {
+        ...formData,
+        slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+      };
+
       if (editingEvent) {
-        await eventTypeApi.update(editingEvent.id, formData);
-        toast.success('Event type updated!');
+        await eventTypeApi.update(editingEvent.id, dataToSubmit);
+        toast.success('Event updated!');
       } else {
-        await eventTypeApi.create(formData);
-        toast.success('Event type created successfully!');
+        await eventTypeApi.create(dataToSubmit);
+        toast.success('Event created!');
       }
       setShowSidePanel(false);
-      setEditingEvent(null);
-      setFormData({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
       fetchData();
     } catch (error) {
-      toast.error('Failed to save event type. Make sure the slug is unique.');
+      toast.error('Error saving event.');
     }
   };
 
   const openPanel = (event = null) => {
     if (event) {
       setEditingEvent(event);
-      setFormData({
-        name: event.name,
-        slug: event.slug,
-        duration: event.duration,
-        description: event.description || '',
-        color: event.color
+      setFormData({ 
+        name: event.name, 
+        slug: event.slug, 
+        duration: event.duration, 
+        description: event.description || '', 
+        color: event.color,
+        location: event.location || 'Phone call'
       });
     } else {
       setEditingEvent(null);
-      setFormData({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
+      setFormData({ name: 'New Meeting', slug: '', duration: 30, description: '', color: '#9333ea', location: 'Phone call' });
     }
     setShowSidePanel(true);
   };
 
   const copyLink = (e, slug) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/p/${slug}`;
-    navigator.clipboard.writeText(url);
-    toast.info('Link copied to clipboard!');
-  };
-
-  const deleteEventType = async (e, id) => {
-    e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this event type?')) {
-      try {
-        await eventTypeApi.delete(id);
-        toast.success('Event type deleted');
-        fetchData();
-      } catch (error) {
-        toast.error('Failed to delete event type');
-      }
-    }
+    navigator.clipboard.writeText(`${window.location.origin}/p/${slug}`);
+    toast.info('Link copied!');
   };
 
   return (
-    <div className="animate-fade-in">
-      <header style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: '800' }}>Event Types</h1>
-          <button className="btn btn-primary" onClick={() => openPanel()} style={{ borderRadius: '100px', padding: '0.75rem 1.5rem' }}>
-            <Plus size={20} /> New Event Type
-          </button>
+    <div className="dashboard-root animate-fade-in">
+      {/* Header Area */}
+      <div className="scheduling-header">
+        <div className="header-title-row">
+          <h1>Scheduling</h1>
+          <Info size={18} className="info-icon" />
         </div>
-        <div style={{ display: 'flex', gap: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-             <div className="avatar-small" style={{ width: '24px', height: '24px', fontSize: '0.7rem' }}>A</div> 
-             User: <strong>Admin</strong>
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CalendarIcon size={16} /> <strong>{upcomingCount}</strong> Upcoming meetings
-          </span>
+        <div className="tab-menu">
+          <button className={`tab-item ${activeTab === 'event-types' ? 'active' : ''}`} onClick={() => setActiveTab('event-types')}>Event types</button>
+          <button className="tab-item">Single-use links</button>
+          <button className="tab-item">Meeting polls</button>
         </div>
-      </header>
+      </div>
 
-      {loading ? (
-        <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
-      ) : eventTypes.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '5rem', border: '2px dashed var(--border)', borderRadius: '16px' }}>
-          <h2 style={{ marginBottom: '1rem' }}>No event types yet</h2>
-          <button className="btn btn-primary" onClick={() => openPanel()}>Create your first event</button>
+      {/* Search area */}
+      <div className="search-section">
+        <div className="search-container">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search event types" />
         </div>
-      ) : (
-        <div className="event-list">
-          {eventTypes.map((event) => (
-            <div key={event.id} className="event-row" onClick={() => openPanel(event)}>
-              <div className="event-row-indicator" style={{ background: event.color }} />
-              <div className="event-row-info">
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{event.name}</h3>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  <span>{event.duration} min</span>
-                  <span>•</span>
-                  <span>One-on-One</span>
-                  <span>•</span>
-                  <a href={`/p/${event.slug}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}>View landing page</a>
-                </div>
+      </div>
+
+      {/* Corporate branding */}
+      <div className="branding-row">
+        <div className="user-info">
+          <div className="user-icon">R</div>
+          <span>riddleplus</span>
+        </div>
+      </div>
+
+      {/* Rows */}
+      <div className="event-list-fancy">
+        {loading ? (
+          <div className="loading-state">Loading...</div>
+        ) : (
+          eventTypes.map((event) => (
+            <div key={event.id} className="event-item-fancy" onClick={() => openPanel(event)}>
+              <div className="color-strip" style={{ backgroundColor: event.color }} />
+              <div className="checkbox-area">
+                <input type="checkbox" onClick={e => e.stopPropagation()} />
               </div>
-              <div className="event-row-actions">
-                <div className="row-icon-group">
-                  <CalendarIcon size={18} />
-                  <Mail size={18} />
-                  <Share2 size={18} />
-                  <LinkIcon size={18} />
+              <div className="event-content">
+                <h3 className="event-name">{event.name}</h3>
+                <div className="event-subtext">
+                  <span>{event.duration} min</span>
+                  <span className="dot">•</span>
+                  <span>{event.location || 'Phone call'}</span>
+                  <span className="dot">•</span>
+                  <span>One-on-One</span>
                 </div>
-                <button className="btn btn-outline" onClick={(e) => copyLink(e, event.slug)} style={{ borderRadius: '100px', fontSize: '0.85rem' }}>
-                  <Copy size={16} /> Copy link
-                </button>
-                <div style={{ position: 'relative' }}>
-                  <button className="btn btn-ghost" onClick={(e) => deleteEventType(e, event.id)} style={{ color: '#ff4d4d' }}>
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+                <div className="event-availability">Weekdays, 9 am - 5 pm</div>
+              </div>
+              <div className="event-actions">
+                 <a href={`/p/${event.slug}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="row-landing-link">View landing page</a>
+                 <div className="hover-icons">
+                    <CalendarIcon size={18} />
+                    <Mail size={18} />
+                    <Share2 size={18} />
+                    <LinkIcon size={18} />
+                 </div>
+                 <button className="copy-link-btn" onClick={e => copyLink(e, event.slug)}>
+                    <LinkIcon size={14} /> Copy link
+                 </button>
+                 <button className="icon-btn-fancy" onClick={e => { e.stopPropagation(); window.open(`/p/${event.slug}`, '_blank'); }}><ExternalLink size={18} /></button>
+                 <button className="icon-btn-fancy"><MoreVertical size={18} /></button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
-      {/* Slide-over Side Panel */}
+      {/* Premium Side Panel (3rd Image Clone) */}
       {showSidePanel && (
         <div className="side-panel-overlay" onClick={() => setShowSidePanel(false)}>
-          <div className="side-panel" onClick={e => e.stopPropagation()}>
-            <div className="side-panel-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: formData.color }} />
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '800' }}>{editingEvent ? 'Edit Event Type' : 'New Event Type'}</h2>
-              </div>
-              <button className="btn btn-ghost" onClick={() => setShowSidePanel(false)} style={{ padding: '0.5rem' }}>
-                <X size={24} />
-              </button>
+          <div className="side-panel-final" onClick={e => e.stopPropagation()}>
+            <div className="panel-final-header">
+              <button className="close-panel-btn" onClick={() => setShowSidePanel(false)}><X size={24} /></button>
             </div>
-            
-            <div className="side-panel-content">
-               <form id="event-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Event Name</label>
-                    <input type="text" className="form-input" required value={formData.name} 
-                      onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Discovery Call" />
-                  </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Duration</label>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                       {[15, 30, 45, 60].map(m => (
-                          <button key={m} type="button" 
-                            onClick={() => setFormData({...formData, duration: m})}
-                            className={`btn ${formData.duration === m ? 'btn-primary' : 'btn-outline'}`}
-                            style={{ flex: 1, padding: '0.75rem' }}
-                          >
-                            {m}m
-                          </button>
-                       ))}
+            <div className="panel-final-content">
+              {/* Profile Header */}
+              <div className="event-type-hero">
+                <span className="event-hero-label">Event type</span>
+                <div className="event-hero-title-box">
+                  <div className="hero-color-circle" style={{ background: formData.color }} />
+                  <ChevronDown size={16} color="#64748b" />
+                  <input 
+                    type="text" 
+                    value={formData.name} 
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    className="hero-title-input"
+                  />
+                </div>
+                <div className="event-hero-subtitle">One-on-One</div>
+              </div>
+
+              {/* Accordion Sections */}
+              <div className="panel-accordions">
+                
+                {/* Duration */}
+                <div className="accordion-item">
+                  <div className="accordion-trigger" onClick={() => setExpandedSection(expandedSection === 'duration' ? '' : 'duration')}>
+                    <div className="trigger-left">
+                       <h4 className="trigger-title">Duration</h4>
+                       {expandedSection !== 'duration' && <div className="trigger-summary"><Clock size={16} /> {formData.duration} min</div>}
                     </div>
+                    {expandedSection === 'duration' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Location</label>
-                    <div className="card" style={{ padding: '1rem', background: '#f8fafc', borderStyle: 'dashed' }}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-muted)' }}>
-                          <Video size={20} /> Add a video conferencing link
+                  {expandedSection === 'duration' && (
+                    <div className="accordion-body animate-fade-in">
+                       <div className="duration-grid-fancy">
+                         {[15, 30, 45, 60].map(m => (
+                           <button key={m} type="button" onClick={() => setFormData({...formData, duration: m})}
+                             className={`dur-pill ${formData.duration === m ? 'active' : ''}`}>{m} min</button>
+                         ))}
                        </div>
                     </div>
-                  </div>
+                  )}
+                </div>
 
-                  <div className="form-group">
-                    <label className="form-label">URL Slug</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>candely.com/p/</span>
-                      <input type="text" style={{ border: 'none', outline: 'none', width: '100%', fontSize: '1rem', fontWeight: '600' }} required 
-                        value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} />
+                {/* Location */}
+                <div className="accordion-item">
+                  <div className="accordion-trigger" onClick={() => setExpandedSection(expandedSection === 'location' ? '' : 'location')}>
+                    <div className="trigger-left">
+                       <h4 className="trigger-title">Location</h4>
+                       {expandedSection !== 'location' && <div className="trigger-summary"><Phone size={16} /> {formData.location}</div>}
                     </div>
+                    {expandedSection === 'location' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </div>
+                  {expandedSection === 'location' && (
+                    <div className="accordion-body animate-fade-in">
+                       <div className="location-grid">
+                          <button className={`loc-btn ${formData.location === 'Zoom' ? 'active' : ''}`} onClick={() => setFormData({...formData, location: 'Zoom'})}>
+                            <Video size={20} /> <span>Zoom</span>
+                          </button>
+                          <button className={`loc-btn ${formData.location === 'Phone call' ? 'active' : ''}`} onClick={() => setFormData({...formData, location: 'Phone call'})}>
+                            <Phone size={20} /> <span>Phone call</span>
+                          </button>
+                          <button className={`loc-btn ${formData.location === 'In-person' ? 'active' : ''}`} onClick={() => setFormData({...formData, location: 'In-person'})}>
+                            <MapPin size={20} /> <span>In-person</span>
+                          </button>
+                          <button className="loc-btn gray">
+                            <ChevronDown size={20} /> <span>All options</span>
+                          </button>
+                       </div>
+                    </div>
+                  )}
+                </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Color</label>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      {['#006bff', '#1a1a1a', '#ff4f00', '#2ecc71', '#9b59b6', '#f1c40f'].map(color => (
-                        <div key={color} onClick={() => setFormData({...formData, color})}
-                          style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: color, cursor: 'pointer',
-                            border: formData.color === color ? '3px solid white' : 'none',
-                            boxShadow: formData.color === color ? '0 0 0 2px ' + color : 'none' }} />
-                      ))}
+                {/* Availability */}
+                <div className="accordion-item">
+                  <div className="accordion-trigger" onClick={() => setExpandedSection(expandedSection === 'availability' ? '' : 'availability')}>
+                    <div className="trigger-left">
+                       <h4 className="trigger-title">Availability</h4>
+                       <div className="trigger-summary">Weekdays, 9 am - 5 pm</div>
                     </div>
+                    <ChevronDown size={20} />
                   </div>
-               </form>
+                </div>
+
+                {/* Host */}
+                <div className="accordion-item">
+                  <div className="accordion-trigger" onClick={() => setExpandedSection(expandedSection === 'host' ? '' : 'host')}>
+                    <div className="trigger-left">
+                       <h4 className="trigger-title">Host</h4>
+                       <div className="trigger-summary">
+                          <div className="avatar-micro">R</div>
+                          <span>riddleplus (you)</span>
+                       </div>
+                    </div>
+                    <ChevronDown size={20} />
+                  </div>
+                </div>
+
+              </div>
             </div>
 
-            <div className="side-panel-footer">
-              <button type="button" className="btn btn-ghost" onClick={() => setShowSidePanel(false)}>Cancel</button>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button type="submit" form="event-form" className="btn btn-primary" style={{ padding: '0.8rem 2.5rem', borderRadius: '100px' }}>
-                  {editingEvent ? 'Save Changes' : 'Create Event'}
-                </button>
-              </div>
+            <div className="panel-final-footer">
+               <button className="more-options-link">More options</button>
+               <button className="final-create-btn" onClick={handleSubmit}>
+                 {editingEvent ? 'Save changes' : 'Create'}
+               </button>
             </div>
           </div>
         </div>
