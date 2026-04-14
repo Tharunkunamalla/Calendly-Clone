@@ -35,8 +35,8 @@ const Navbar = () => {
         </div>
       </div>
       <div className="nav-right">
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyCenter: 'center', fontWeight: 'bold' }}>
-          <span style={{ margin: 'auto' }}>TK</span>
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--primary-light)' }}>
+          <img src="/pfp.png" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
       </div>
       <style>{`

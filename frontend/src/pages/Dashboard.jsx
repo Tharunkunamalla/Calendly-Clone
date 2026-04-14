@@ -107,8 +107,27 @@ const Dashboard = () => {
 
       {/* Create Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="card" style={{ width: '500px', animation: 'fadeIn 0.2s ease' }}>
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          background: 'rgba(0,0,0,0.5)', 
+          padding: '2rem',
+          display: 'flex', 
+          alignItems: 'flex-start', // Changed from center to handle tall content
+          justifyContent: 'center', 
+          zIndex: 1000,
+          overflowY: 'auto' // Added scroll for overlay
+        }}>
+          <div className="card" style={{ 
+            width: '100%',
+            maxWidth: '500px', 
+            animation: 'fadeIn 0.2s ease',
+            marginTop: '2rem', // Give some space at the top
+            marginBottom: '2rem'
+          }}>
             <h2 style={{ marginBottom: '1.5rem' }}>New Event Type</h2>
             <form onSubmit={createEventType}>
               <div className="form-group">
