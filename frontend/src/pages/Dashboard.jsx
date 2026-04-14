@@ -111,37 +111,41 @@ const Dashboard = () => {
           position: 'fixed', 
           top: 0, 
           left: 0, 
-          right: 0, 
-          bottom: 0, 
-          background: 'rgba(0,0,0,0.5)', 
-          padding: '2rem',
-          display: 'flex', 
-          alignItems: 'flex-start', // Changed from center to handle tall content
-          justifyContent: 'center', 
-          zIndex: 1000,
-          overflowY: 'auto' // Added scroll for overlay
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
         }}>
           <div className="card" style={{ 
             width: '100%',
-            maxWidth: '500px', 
-            animation: 'fadeIn 0.2s ease',
-            marginTop: '2rem', // Give some space at the top
-            marginBottom: '2rem'
+            maxWidth: '550px',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            maxHeight: '90vh',
+            overflowY: 'auto'
           }}>
-            <h2 style={{ marginBottom: '1.5rem' }}>New Event Type</h2>
-            <form onSubmit={createEventType}>
-              <div className="form-group">
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem', color: '#1a1a1a' }}>New Event Type</h2>
+            <form onSubmit={createEventType} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Event Name</label>
                 <input type="text" className="form-input" required value={newType.name} onChange={e => setNewType({...newType, name: e.target.value})} placeholder="e.g. 30 Minute Meeting" />
               </div>
-              <div className="form-group">
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">URL Slug</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>candely.com/p/</span>
-                  <input type="text" className="form-input" required value={newType.slug} onChange={e => setNewType({...newType, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} placeholder="meeting-link" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '0.5rem 0.75rem' }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', whiteSpace: 'nowrap' }}>/p/</span>
+                  <input type="text" style={{ border: 'none', outline: 'none', width: '100%', fontSize: '1rem' }} required value={newType.slug} onChange={e => setNewType({...newType, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} placeholder="meeting-link" />
                 </div>
               </div>
-              <div className="form-group">
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Duration (minutes)</label>
                 <select className="form-input" value={newType.duration} onChange={e => setNewType({...newType, duration: parseInt(e.target.value)})}>
                   <option value="15">15</option>
@@ -150,11 +154,8 @@ const Dashboard = () => {
                   <option value="60">60</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea className="form-input" rows="3" value={newType.description} onChange={e => setNewType({...newType, description: e.target.value})} />
-              </div>
-              <div className="form-group">
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Event Color</label>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   {['#006bff', '#1a1a1a', '#ff4f00', '#2ecc71', '#9b59b6'].map(color => (
@@ -162,21 +163,23 @@ const Dashboard = () => {
                       key={color} 
                       onClick={() => setNewType({...newType, color})}
                       style={{ 
-                        width: '30px', 
-                        height: '30px', 
+                        width: '32px', 
+                        height: '32px', 
                         borderRadius: '50%', 
                         backgroundColor: color, 
                         cursor: 'pointer',
-                        border: newType.color === color ? '3px solid #ccc' : 'none',
-                        boxShadow: newType.color === color ? '0 0 0 2px white' : 'none'
+                        border: newType.color === color ? '3px solid #fff' : 'none',
+                        boxShadow: newType.color === color ? '0 0 0 2px ' + color : 'none',
+                        transition: 'var(--transition)'
                       }} 
                     />
                   ))}
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Create Event</button>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <button type="button" className="btn btn-outline" style={{ borderRadius: '8px' }} onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ borderRadius: '8px', padding: '0.6rem 2rem' }}>Create Event</button>
               </div>
             </form>
           </div>
