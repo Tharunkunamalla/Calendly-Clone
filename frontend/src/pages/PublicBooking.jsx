@@ -84,8 +84,13 @@ const PublicBooking = () => {
         
         {/* Left Side: Info */}
         <div style={{ width: showForm ? '100%' : '35%', padding: '2.5rem', borderRight: showForm ? 'none' : '1px solid var(--border)', borderBottom: showForm ? '1px solid var(--border)' : 'none' }}>
-          <button onClick={() => showForm ? setShowForm(false) : navigate(-1)} style={{ background: 'none', color: 'var(--primary)', fontWeight: '600', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <ChevronLeft size={20} /> Back
+          <button 
+            type="button"
+            onClick={() => showForm ? setShowForm(false) : navigate('/')} 
+            className="btn btn-outline" 
+            style={{ border: '1px solid var(--border)', padding: '0.5rem 1rem', marginBottom: '2.5rem', fontSize: '0.85rem' }}
+          >
+            <ChevronLeft size={16} /> Back
           </button>
           
           <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>Admin</h2>
@@ -120,9 +125,9 @@ const PublicBooking = () => {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <h3 style={{ fontWeight: '600' }}>{format(currentMonth, 'MMMM yyyy')}</h3>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="btn-ghost" style={{ padding: '0.5rem', borderRadius: '50%' }}><ChevronLeft size={18} /></button>
-                      <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="btn-ghost" style={{ padding: '0.5rem', borderRadius: '50%' }}><ChevronRight size={18} /></button>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="icon-btn"><ChevronLeft size={18} /></button>
+                      <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="icon-btn"><ChevronRight size={18} /></button>
                     </div>
                   </div>
                   

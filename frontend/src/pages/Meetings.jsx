@@ -46,26 +46,16 @@ const Meetings = () => {
         <p style={{ color: 'var(--text-muted)' }}>View and manage your upcoming and past bookings.</p>
       </header>
 
-      <div style={{ display: 'flex', gap: '2rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'flex', gap: '2.5rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)' }}>
         <button 
           onClick={() => setActiveTab('upcoming')}
-          style={{ 
-            padding: '0.75rem 0', background: 'none', 
-            borderBottom: activeTab === 'upcoming' ? '2px solid var(--primary)' : '2px solid transparent',
-            color: activeTab === 'upcoming' ? 'var(--primary)' : 'var(--text-muted)',
-            fontWeight: '700', fontSize: '1rem', transition: 'var(--transition)'
-          }}
+          className={`tab-btn ${activeTab === 'upcoming' ? 'active' : ''}`}
         >
           Upcoming
         </button>
         <button 
           onClick={() => setActiveTab('past')}
-          style={{ 
-            padding: '0.75rem 0', background: 'none', 
-            borderBottom: activeTab === 'past' ? '2px solid var(--primary)' : '2px solid transparent',
-            color: activeTab === 'past' ? 'var(--primary)' : 'var(--text-muted)',
-            fontWeight: '700', fontSize: '1rem', transition: 'var(--transition)'
-          }}
+          className={`tab-btn ${activeTab === 'past' ? 'active' : ''}`}
         >
           Past
         </button>
