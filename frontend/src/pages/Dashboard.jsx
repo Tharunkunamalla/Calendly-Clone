@@ -8,7 +8,8 @@ const Dashboard = () => {
   const [upcomingCount, setUpcomingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [newType, setNewType] = useState({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [formData, setFormData] = useState({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
 
   useEffect(() => {
     fetchData();
@@ -27,17 +28,35 @@ const Dashboard = () => {
     }
   };
 
-  const createEventType = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await eventTypeApi.create(newType);
+      if (editingEvent) {
+        await eventTypeApi.update(editingEvent.id, formData);
+        toast.success('Event type updated!');
+      } else {
+        await eventTypeApi.create(formData);
+        toast.success('Event type created successfully!');
+      }
       setShowModal(false);
-      setNewType({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
-      toast.success('Event type created successfully!');
+      setEditingEvent(null);
+      setFormData({ name: '', slug: '', duration: 30, description: '', color: '#006bff' });
       fetchData();
     } catch (error) {
-      toast.error('Failed to create event type. Make sure the slug is unique.');
+      toast.error('Failed to save event type. Make sure the slug is unique.');
     }
+  };
+
+  const openEdit = (event) => {
+    setEditingEvent(event);
+    setFormData({
+      name: event.name,
+      slug: event.slug,
+      duration: event.duration,
+      description: event.description || '',
+      color: event.color
+    });
+    setShowModal(true);
   };
 
   const copyLink = (slug) => {
@@ -104,7 +123,13 @@ const Dashboard = () => {
               <div style={{ height: '8px', background: event.color }} />
               <div style={{ padding: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-                  <Settings size={18} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
+                  <button 
+                    onClick={() => openEdit(event)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem', color: 'var(--text-muted)' }}
+                    title="Edit Event"
+                  >
+                    <Settings size={18} />
+                  </button>
                 </div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.5rem' }}>{event.name}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
@@ -151,12 +176,14 @@ const Dashboard = () => {
             width: '100%', maxWidth: '520px', borderRadius: '12px', padding: '2.5rem',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' 
           }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>New Event Type</h2>
-            <form onSubmit={createEventType} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>
+              {editingEvent ? 'Edit Event Type' : 'New Event Type'}
+            </h2>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">Event Name</label>
-                <input type="text" className="form-input" required value={newType.name} 
-                  onChange={e => setNewType({...newType, name: e.target.value})} placeholder="e.g. Discovery Call" />
+                <input type="text" className="form-input" required value={formData.name} 
+                  onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Discovery Call" />
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
@@ -164,14 +191,14 @@ const Dashboard = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.6rem 0.8rem' }}>
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>/p/</span>
                   <input type="text" style={{ border: 'none', outline: 'none', width: '100%', fontSize: '1rem' }} required 
-                    value={newType.slug} onChange={e => setNewType({...newType, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} placeholder="meeting-link" />
+                    value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} placeholder="meeting-link" />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">Duration</label>
-                  <select className="form-input" value={newType.duration} onChange={e => setNewType({...newType, duration: parseInt(e.target.value)})}>
+                  <select className="form-input" value={formData.duration} onChange={e => setFormData({...formData, duration: parseInt(e.target.value)})}>
                     <option value="15">15 mins</option>
                     <option value="30">30 mins</option>
                     <option value="60">60 mins</option>
@@ -181,18 +208,20 @@ const Dashboard = () => {
                   <label className="form-label">Color Theme</label>
                   <div style={{ display: 'flex', gap: '0.5rem', height: '40px', alignItems: 'center' }}>
                     {['#006bff', '#1a1a1a', '#ff4f00', '#2ecc71', '#9b59b6'].map(color => (
-                      <div key={color} onClick={() => setNewType({...newType, color})}
+                      <div key={color} onClick={() => setFormData({...formData, color})}
                         style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: color, cursor: 'pointer',
-                          border: newType.color === color ? '2px solid #fff' : 'none',
-                          boxShadow: newType.color === color ? '0 0 0 2px ' + color : 'none' }} />
+                          border: formData.color === color ? '2px solid #fff' : 'none',
+                          boxShadow: formData.color === color ? '0 0 0 2px ' + color : 'none' }} />
                     ))}
                   </div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 2rem' }}>Create Event</button>
+                <button type="button" className="btn btn-ghost" onClick={() => { setShowModal(false); setEditingEvent(null); }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 2rem' }}>
+                  {editingEvent ? 'Save Changes' : 'Create Event'}
+                </button>
               </div>
             </form>
           </div>

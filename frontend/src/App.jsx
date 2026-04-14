@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Availability from './pages/Availability';
 import Meetings from './pages/Meetings';
@@ -22,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
 const Navbar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = React.useState(false);
   const isPublicPage = location.pathname.startsWith('/p/');
 
   if (isPublicPage || !user) return null;
@@ -38,14 +39,34 @@ const Navbar = () => {
           <Link to="/availability" className={`nav-link ${location.pathname === '/availability' ? 'active' : ''}`}>Availability</Link>
         </div>
       </div>
-      <div className="nav-right" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <div style={{ textAlign: 'right', display: 'none', md: 'block' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: '700' }}>{user.name}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Admin</div>
-        </div>
-        <button onClick={logout} className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ff4d4d', padding: '0.5rem' }}>
-          <LogOut size={18} /> <span style={{ fontWeight: '600' }}>Logout</span>
+      <div className="nav-right" style={{ position: 'relative' }}>
+        <button 
+          onClick={() => setShowDropdown(!showDropdown)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+        >
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: '800' }}>{user.name}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Admin</div>
+          </div>
+          <div className="avatar">
+            <img src="/pfp.png" alt="Profile" />
+          </div>
         </button>
+
+        {showDropdown && (
+          <div className="dropdown-menu animate-fade-in" style={{
+            position: 'absolute', top: '120%', right: 0, width: '220px',
+            backgroundColor: 'white', borderRadius: '12px', border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow-md)', overflow: 'hidden', padding: '0.5rem', zIndex: 1000
+          }}>
+            <div style={{ padding: '0.75rem 0.5rem', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '700' }}>{user.email}</div>
+            </div>
+            <button className="dropdown-item" onClick={() => { setShowDropdown(false); logout(); }} style={{ color: '#ff4d4d' }}>
+              <LogOut size={16} /> Logout
+            </button>
+          </div>
+        )}
       </div>
       <style>{`
         .navbar { display: flex; justify-content: space-between; alignItems: center; padding: 0 4rem; height: 80px; background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
@@ -54,6 +75,10 @@ const Navbar = () => {
         .nav-link { color: var(--text-muted); font-weight: 500; padding: 0.5rem 0; text-decoration: none; border-bottom: 2px solid transparent; transition: var(--transition); }
         .nav-link:hover, .nav-link.active { color: var(--primary); }
         .nav-link.active { border-bottom-color: var(--primary); }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary-light); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .dropdown-item { width: 100%; padding: 0.75rem 1rem; display: flex; alignItems: center; gap: 0.75rem; background: none; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-main); transition: var(--transition); }
+        .dropdown-item:hover { background: var(--primary-light); color: var(--primary); }
       `}</style>
     </nav>
   );
@@ -71,7 +96,6 @@ const AppContent = () => {
           <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
           <Route path="/p/:slug" element={<PublicBooking />} />
           <Route path="/p/:slug/confirm" element={<BookingConfirmation />} />
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
