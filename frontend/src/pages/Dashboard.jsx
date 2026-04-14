@@ -115,8 +115,8 @@ const Dashboard = () => {
       {/* Corporate branding */}
       <div className="branding-row">
         <div className="user-info">
-          <div className="user-icon">R</div>
-          <span>riddleplus</span>
+          <div className="user-icon" style={{ background: '#006bff', color: 'white', border: 'none' }}>C</div>
+          <span>Candely</span>
         </div>
       </div>
 
@@ -256,8 +256,8 @@ const Dashboard = () => {
                     <div className="trigger-left">
                        <h4 className="trigger-title">Host</h4>
                        <div className="trigger-summary">
-                          <div className="avatar-micro">R</div>
-                          <span>riddleplus (you)</span>
+                          <div className="avatar-micro" style={{ background: '#006bff', color: 'white', border: 'none' }}>C</div>
+                          <span>Candely (you)</span>
                        </div>
                     </div>
                     <ChevronDown size={20} />

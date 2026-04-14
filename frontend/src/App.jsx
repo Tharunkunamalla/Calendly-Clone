@@ -184,7 +184,7 @@ const Header = () => {
        <button className="icon-btn-ghost" style={{ background: 'none', border: 'none', cursor: 'pointer' }}><UserPlus size={20} color="#64748b" /></button>
        <div style={{ position: 'relative' }}>
          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px' }} onClick={() => setShowProfile(!showProfile)}>
-            <div className="header-avatar">R</div>
+            <div className="header-avatar" style={{ background: '#006bff', color: 'white', border: 'none', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>C</div>
             <ChevronDown size={14} color="#64748b" />
          </div>
          {showProfile && (
