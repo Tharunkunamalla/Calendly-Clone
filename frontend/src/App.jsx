@@ -17,8 +17,9 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <Link to="/" className="brand">
-          <Clock size={28} /> Candely
+        <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
+          <img src="/logo.png" alt="Candely" style={{ height: '32px', marginRight: '0.75rem' }} />
+          <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#1a1a1a', letterSpacing: '-0.03em' }}>Candely</span>
         </Link>
         <div className="nav-links">
           <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Event Types</Link>

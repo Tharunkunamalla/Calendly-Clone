@@ -1,10 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-
-const eventTypeRoutes = require('./routes/eventTypes');
-const availabilityRoutes = require('./routes/availability');
-const meetingRoutes = require('./routes/meetings');
+const prisma = require('./lib/prisma');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,15 +9,22 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Routes
+const eventTypeRoutes = require('./routes/eventTypes');
+const availabilityRoutes = require('./routes/availability');
+const meetingRoutes = require('./routes/meetings');
+
 app.use('/api/event-types', eventTypeRoutes);
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/meetings', meetingRoutes);
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', database: 'connected' });
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✓ Server running on port ${PORT}`);
+  prisma.$connect()
+    .then(() => console.log('✓ Database connected'))
+    .catch(err => console.error('✗ Database connection error:', err.message));
 });
