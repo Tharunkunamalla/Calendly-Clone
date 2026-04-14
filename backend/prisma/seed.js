@@ -52,6 +52,29 @@ async function main() {
     data: defaultAvailability,
   });
 
+  // Seed sample meetings
+  await prisma.meeting.create({
+    data: {
+      inviteeName: 'John Doe',
+      inviteeEmail: 'john@example.com',
+      startTime: new Date(new Date(new Date().setDate(new Date().getDate() + 1)).setHours(10, 0, 0, 0)),
+      endTime: new Date(new Date(new Date().setDate(new Date().getDate() + 1)).setHours(10, 30, 0, 0)),
+      eventTypeId: event2.id,
+      status: 'confirmed',
+    },
+  });
+
+  await prisma.meeting.create({
+    data: {
+      inviteeName: 'Jane Smith',
+      inviteeEmail: 'jane@example.com',
+      startTime: new Date(new Date(new Date().setDate(new Date().getDate() - 1)).setHours(14, 0, 0, 0)),
+      endTime: new Date(new Date(new Date().setDate(new Date().getDate() - 1)).setHours(15, 0, 0, 0)),
+      eventTypeId: event3.id,
+      status: 'confirmed',
+    },
+  });
+
   console.log('Seed data created successfully!');
 }
 
