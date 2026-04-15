@@ -51,7 +51,12 @@ const ProtectedRoute = ({children}) => {
   return children;
 };
 
-const CreateDropdown = ({onClose, onSelectItem, align = "right"}) => {
+const CreateDropdown = ({
+  onClose,
+  onSelectItem,
+  align = "right",
+  menuWidth,
+}) => {
   return (
     <div
       className="create-dropdown-menu animate-fade-in"
@@ -61,7 +66,7 @@ const CreateDropdown = ({onClose, onSelectItem, align = "right"}) => {
         ...(align === "left"
           ? {left: "0", right: "auto"}
           : {right: "0", left: "auto"}),
-        width: "min(400px, calc(100vw - 2rem))",
+        width: menuWidth || "min(400px, calc(100vw - 2rem))",
         backgroundColor: "white",
         borderRadius: "14px",
         border: "1px solid #e2e8f0",
@@ -225,6 +230,7 @@ const Sidebar = ({collapsed, setCollapsed}) => {
           {!collapsed && showCreateDropdown && (
             <CreateDropdown
               align="left"
+              menuWidth="min(400px, calc(100vw - 3rem))"
               onClose={() => setShowCreateDropdown(false)}
               onSelectItem={() => {
                 setShowCreateDropdown(false);
@@ -323,131 +329,146 @@ const Header = () => {
         justifyContent: "flex-end",
         alignItems: "center",
         padding: "0 2rem",
-        gap: "1.25rem",
         position: "relative",
         zIndex: 50,
       }}
     >
-      <button
-        className="icon-btn-ghost"
-        style={{background: "none", border: "none", cursor: "pointer"}}
+      <div
+        className="header-actions"
+        style={{display: "flex", alignItems: "center", gap: "0.85rem"}}
       >
-        <UserPlus size={20} color="#64748b" />
-      </button>
-      <div style={{position: "relative"}}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            cursor: "pointer",
-            padding: "0.5rem",
-            borderRadius: "8px",
-          }}
-          onClick={() => setShowProfile(!showProfile)}
-        >
-          <div
-            className="header-avatar"
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              overflow: "hidden",
-              border: "1px solid #dbe4f0",
-            }}
-          >
-            <img
-              src="/pfp.png"
-              alt="Profile"
-              style={{width: "100%", height: "100%", objectFit: "cover"}}
-            />
-          </div>
-          <ChevronDown size={14} color="#64748b" />
-        </div>
-        {showProfile && (
-          <div
-            className="profile-dropdown"
-            style={{
-              position: "absolute",
-              top: "100%",
-              right: "0",
-              background: "white",
-              border: "1px solid #e2e8f0",
-              borderRadius: "8px",
-              padding: "0.5rem 0",
-              minWidth: "200px",
-              boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
-              zIndex: 1000,
-            }}
-          >
-            <button
-              style={{
-                width: "100%",
-                padding: "0.75rem 1rem",
-                background: "none",
-                border: "none",
-                textAlign: "left",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                color: "#1e293b",
-              }}
-            >
-              <UserIcon size={16} /> Profile
-            </button>
-            <button
-              style={{
-                width: "100%",
-                padding: "0.75rem 1rem",
-                background: "none",
-                border: "none",
-                textAlign: "left",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                color: "#1e293b",
-              }}
-            >
-              <Settings size={16} /> Account settings
-            </button>
-            <div
-              style={{height: "1px", background: "#e2e8f0", margin: "0.5rem 0"}}
-            ></div>
-            <button
-              onClick={logout}
-              style={{
-                width: "100%",
-                padding: "0.75rem 1rem",
-                background: "none",
-                border: "none",
-                textAlign: "left",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                color: "#ef4444",
-              }}
-            >
-              <LogOut size={16} /> Logout
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="top-create-btn-group" ref={dropRef}>
-        <button className="top-create-btn" onClick={handleCreate}>
-          <Plus size={16} /> Create
-        </button>
         <button
-          className="top-create-arrow"
-          onClick={() => setShowCreate(!showCreate)}
+          className="icon-btn-ghost"
+          style={{background: "none", border: "none", cursor: "pointer"}}
+          aria-label="Invite users"
         >
-          <ChevronDown size={16} />
+          <UserPlus size={20} color="#64748b" />
         </button>
-        {showCreate && (
-          <CreateDropdown onSelectItem={handleCreate} align="right" />
-        )}
+        <div style={{position: "relative"}}>
+          <button
+            type="button"
+            className="profile-toggle"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              cursor: "pointer",
+              padding: "0.35rem 0.45rem",
+              borderRadius: "999px",
+              background: "transparent",
+              border: "1px solid transparent",
+            }}
+            onClick={() => setShowProfile(!showProfile)}
+            aria-label="Open profile menu"
+          >
+            <div
+              className="header-avatar"
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                overflow: "hidden",
+                border: "1px solid #dbe4f0",
+              }}
+            >
+              <img
+                src="/pfp.png"
+                alt="Profile"
+                style={{width: "100%", height: "100%", objectFit: "cover"}}
+              />
+            </div>
+            <ChevronDown size={14} color="#64748b" />
+          </button>
+          {showProfile && (
+            <div
+              className="profile-dropdown"
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: "0",
+                background: "white",
+                border: "1px solid #e2e8f0",
+                borderRadius: "8px",
+                padding: "0.5rem 0",
+                minWidth: "200px",
+                boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
+                zIndex: 1000,
+              }}
+            >
+              <button
+                style={{
+                  width: "100%",
+                  padding: "0.75rem 1rem",
+                  background: "none",
+                  border: "none",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  color: "#1e293b",
+                }}
+              >
+                <UserIcon size={16} /> Profile
+              </button>
+              <button
+                style={{
+                  width: "100%",
+                  padding: "0.75rem 1rem",
+                  background: "none",
+                  border: "none",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  color: "#1e293b",
+                }}
+              >
+                <Settings size={16} /> Account settings
+              </button>
+              <div
+                style={{
+                  height: "1px",
+                  background: "#e2e8f0",
+                  margin: "0.5rem 0",
+                }}
+              ></div>
+              <button
+                onClick={logout}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem 1rem",
+                  background: "none",
+                  border: "none",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  color: "#ef4444",
+                }}
+              >
+                <LogOut size={16} /> Logout
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="top-create-btn-group" ref={dropRef}>
+          <button className="top-create-btn" onClick={handleCreate}>
+            <Plus size={16} /> Create
+          </button>
+          <button
+            className="top-create-arrow"
+            onClick={() => setShowCreate(!showCreate)}
+            aria-label="Open create menu"
+          >
+            <ChevronDown size={16} />
+          </button>
+          {showCreate && (
+            <CreateDropdown onSelectItem={handleCreate} align="right" />
+          )}
+        </div>
       </div>
     </header>
   );
@@ -534,7 +555,9 @@ const AppContent = () => {
           display: flex; alignItems: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #64748b;
         }
         
-        .top-create-btn-group { display: flex; align-items: stretch; height: 38px; border-radius: 100px; overflow: visible; background: #006bff; position: relative; }
+        .header-actions { margin-left: auto; }
+        .profile-toggle:hover { background: #f8fafc; border-color: #e2e8f0; }
+        .top-create-btn-group { display: flex; align-items: stretch; height: 38px; border-radius: 100px; overflow: visible; background: #006bff; position: relative; flex-shrink: 0; }
         .top-create-btn { border: none; background: #006bff; color: white; display: flex; align-items: center; gap: 0.5rem; padding: 0 1.5rem; font-weight: 700; font-size: 0.88rem; cursor: pointer; border-right: 1px solid rgba(255,255,255,0.2); border-radius: 100px 0 0 100px; }
         .top-create-arrow { border: none; background: #006bff; color: white; padding: 0 0.75rem; display: flex; align-items: center; cursor: pointer; border-radius: 0 100px 100px 0; }
         .top-create-btn:hover, .top-create-arrow:hover { background: #0056cc; }
