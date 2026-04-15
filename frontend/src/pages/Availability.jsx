@@ -72,7 +72,7 @@ const Availability = () => {
         </button>
       </header>
 
-      <div className="card" style={{ maxWidth: '800px', padding: '2.5rem' }}>
+      <div className="card" style={{ maxWidth: '800px', padding: '3rem', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', border: '1px solid var(--border)', background: '#ffffff' }}>
         <div style={{ 
           marginBottom: '2.5rem', 
           display: 'flex', 
@@ -98,38 +98,42 @@ const Availability = () => {
               borderBottom: index === slots.length - 1 ? 'none' : '1px solid var(--border)' 
             }}>
               <div style={{ width: '140px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', fontWeight: '600' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', fontWeight: '600', fontSize: '1.05rem', color: slot.enabled ? '#1e293b' : '#94a3b8' }}>
                   <input 
                     type="checkbox" 
                     checked={slot.enabled} 
                     onChange={(e) => updateSlot(index, 'enabled', e.target.checked)}
-                    style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                    style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: '#006bff' }}
                   />
                   {DAYS[slot.dayOfWeek]}
                 </label>
               </div>
               
               {slot.enabled ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
                   <input 
                     type="time" 
                     className="form-input" 
-                    style={{ width: '150px', padding: '0.6rem', border: '1px solid var(--border)' }} 
+                    style={{ width: '150px', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '1rem', color: '#1e293b', outline: 'none', transition: 'border-color 0.2s' }} 
+                    onFocus={e => e.target.style.borderColor = '#006bff'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
                     value={slot.startTime}
                     onChange={(e) => updateSlot(index, 'startTime', e.target.value)}
                   />
-                  <span style={{ color: 'var(--text-muted)', fontWeight: '500' }}>to</span>
+                  <span style={{ color: '#64748b', fontWeight: '600' }}>-</span>
                   <input 
                     type="time" 
                     className="form-input" 
-                    style={{ width: '150px', padding: '0.6rem', border: '1px solid var(--border)' }} 
+                    style={{ width: '150px', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '1rem', color: '#1e293b', outline: 'none', transition: 'border-color 0.2s' }} 
+                    onFocus={e => e.target.style.borderColor = '#006bff'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
                     value={slot.endTime}
                     onChange={(e) => updateSlot(index, 'endTime', e.target.value)}
                   />
                 </div>
               ) : (
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Info size={14} /> Unavailable
+                <div style={{ color: '#94a3b8', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, fontWeight: '500' }}>
+                  <Info size={16} /> Unavailable
                 </div>
               )}
             </div>

@@ -46,16 +46,18 @@ const Meetings = () => {
         <p style={{ color: 'var(--text-muted)' }}>View and manage your upcoming and past bookings.</p>
       </header>
 
-      <div style={{ display: 'flex', gap: '2.5rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
         <button 
           onClick={() => setActiveTab('upcoming')}
           className={`tab-btn ${activeTab === 'upcoming' ? 'active' : ''}`}
+          style={{ padding: '0.5rem 1.5rem', borderRadius: '30px', fontWeight: '600', transition: 'all 0.2s', background: activeTab === 'upcoming' ? '#e0f2fe' : 'transparent', color: activeTab === 'upcoming' ? '#006bff' : '#64748b', border: 'none', cursor: 'pointer' }}
         >
           Upcoming
         </button>
         <button 
           onClick={() => setActiveTab('past')}
           className={`tab-btn ${activeTab === 'past' ? 'active' : ''}`}
+          style={{ padding: '0.5rem 1.5rem', borderRadius: '30px', fontWeight: '600', transition: 'all 0.2s', background: activeTab === 'past' ? '#e0f2fe' : 'transparent', color: activeTab === 'past' ? '#006bff' : '#64748b', border: 'none', cursor: 'pointer' }}
         >
           Past
         </button>
@@ -109,8 +111,8 @@ const Meetings = () => {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                 {activeTab === 'upcoming' && meeting.status === 'confirmed' && (
-                  <button className="btn btn-ghost" onClick={() => cancelMeeting(meeting.id)} style={{ color: '#ff4d4d', fontWeight: '600' }}>
-                     Cancel
+                  <button onClick={() => cancelMeeting(meeting.id)} style={{ padding: '0.5rem 1.25rem', borderRadius: '8px', background: '#fee2e2', color: '#ef4444', fontWeight: '600', border: '1px solid #fca5a5', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.target.style.background = '#fecaca'} onMouseOut={e => e.target.style.background = '#fee2e2'}>
+                     Cancel Meeting
                   </button>
                 )}
                 {meeting.status === 'cancelled' && (

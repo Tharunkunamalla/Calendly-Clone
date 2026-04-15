@@ -12,6 +12,8 @@ import { toast } from 'react-toastify';
 const Dashboard = () => {
   const [eventTypes, setEventTypes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [panelDropdown, setPanelDropdown] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [formData, setFormData] = useState({ name: '', slug: '', duration: 30, description: '', color: '#006bff', location: 'Phone call' });
@@ -65,6 +67,33 @@ const Dashboard = () => {
     }
   };
 
+  const deleteEventType = async (e, id) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this event type?")) {
+      try {
+        await eventTypeApi.delete(id);
+        toast.success("Event deleted!");
+        fetchData();
+      } catch (error) {
+        toast.error("Failed to delete event.");
+      }
+    }
+  };
+
+  const toggleDropdown = (e, id) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === id ? null : id);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveDropdown(null);
+      setPanelDropdown(false);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   const openPanel = (event = null) => {
     if (event) {
       setEditingEvent(event);
@@ -99,8 +128,8 @@ const Dashboard = () => {
         </div>
         <div className="tab-menu">
           <button className={`tab-item ${activeTab === 'event-types' ? 'active' : ''}`} onClick={() => setActiveTab('event-types')}>Event types</button>
-          <button className="tab-item">Single-use links</button>
-          <button className="tab-item">Meeting polls</button>
+          <button className={`tab-item ${activeTab === 'single-use' ? 'active' : ''}`} onClick={() => setActiveTab('single-use')}>Single-use links</button>
+          <button className={`tab-item ${activeTab === 'meeting-polls' ? 'active' : ''}`} onClick={() => setActiveTab('meeting-polls')}>Meeting polls</button>
         </div>
       </div>
 
@@ -124,6 +153,18 @@ const Dashboard = () => {
       <div className="event-list-fancy">
         {loading ? (
           <div className="loading-state">Loading...</div>
+        ) : activeTab === 'single-use' ? (
+          <div className="empty-state-fancy" style={{ padding: '4rem', textAlign: 'center', background: '#fafafa', borderRadius: '12px', border: '1px solid var(--border)' }}>
+             <LinkIcon size={48} style={{ opacity: 0.3, marginBottom: '1.5rem' }} />
+             <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Single-use links</h2>
+             <p style={{ color: 'var(--text-muted)' }}>Generate one-time links for unique booking scenarios. Coming soon!</p>
+          </div>
+        ) : activeTab === 'meeting-polls' ? (
+          <div className="empty-state-fancy" style={{ padding: '4rem', textAlign: 'center', background: '#fafafa', borderRadius: '12px', border: '1px solid var(--border)' }}>
+             <Users size={48} style={{ opacity: 0.3, marginBottom: '1.5rem' }} />
+             <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Meeting polls</h2>
+             <p style={{ color: 'var(--text-muted)' }}>Find the best time for a group to meet. Coming soon!</p>
+          </div>
         ) : (
           eventTypes.map((event) => (
             <div key={event.id} className="event-item-fancy" onClick={() => openPanel(event)}>
@@ -154,7 +195,38 @@ const Dashboard = () => {
                     <LinkIcon size={14} /> Copy link
                  </button>
                  <button className="icon-btn-fancy" onClick={e => { e.stopPropagation(); window.open(`/p/${event.slug}`, '_blank'); }}><ExternalLink size={18} /></button>
-                 <button className="icon-btn-fancy"><MoreVertical size={18} /></button>
+                 
+                 <div style={{ position: 'relative' }}>
+                   <button className="icon-btn-fancy" onClick={(e) => toggleDropdown(e, event.id)}><MoreVertical size={18} /></button>
+                   {activeDropdown === event.id && (
+                     <div 
+                       style={{ 
+                         position: 'absolute', top: '100%', right: '0', background: 'white', 
+                         border: '1px solid var(--border)', borderRadius: '8px', 
+                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', zIndex: 50,
+                         padding: '0.5rem', minWidth: '150px', display: 'flex', flexDirection: 'column'
+                       }} 
+                       onClick={e => e.stopPropagation()}
+                     >
+                       <button 
+                         onClick={e => { toggleDropdown(e, event.id); openPanel(event); }}
+                         style={{ padding: '0.5rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '4px', width: '100%' }}
+                         onMouseOver={e => e.target.style.background = '#f1f5f9'}
+                         onMouseOut={e => e.target.style.background = 'none'}
+                       >
+                         Edit
+                       </button>
+                       <button 
+                         onClick={(e) => { toggleDropdown(e, event.id); deleteEventType(e, event.id); }}
+                         style={{ padding: '0.5rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', color: '#ff4d4d', borderRadius: '4px', width: '100%' }}
+                         onMouseOver={e => e.target.style.background = '#fff0f0'}
+                         onMouseOut={e => e.target.style.background = 'none'}
+                       >
+                         Delete
+                       </button>
+                     </div>
+                   )}
+                 </div>
               </div>
             </div>
           ))
@@ -268,7 +340,35 @@ const Dashboard = () => {
             </div>
 
             <div className="panel-final-footer">
-               <button className="more-options-link">More options</button>
+               <div style={{ position: 'relative' }}>
+                 {editingEvent && (
+                   <>
+                     <button className="more-options-link" onClick={(e) => { e.stopPropagation(); setPanelDropdown(!panelDropdown); }}>
+                       More options
+                     </button>
+                     {panelDropdown && (
+                       <div 
+                         style={{ 
+                           position: 'absolute', bottom: '100%', left: '0', background: 'white', marginBottom: '8px',
+                           border: '1px solid var(--border)', borderRadius: '8px', 
+                           boxShadow: '0 -4px 10px rgba(0, 0, 0, 0.1)', zIndex: 60,
+                           padding: '0.5rem', minWidth: '160px', display: 'flex', flexDirection: 'column'
+                         }} 
+                         onClick={e => e.stopPropagation()}
+                       >
+                         <button 
+                           onClick={(e) => { setPanelDropdown(false); deleteEventType(e, editingEvent.id); setShowSidePanel(false); }}
+                           style={{ padding: '0.5rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', borderRadius: '4px', width: '100%', fontWeight: '600' }}
+                           onMouseOver={e => e.target.style.background = '#fee2e2'}
+                           onMouseOut={e => e.target.style.background = 'none'}
+                         >
+                           Delete Event
+                         </button>
+                       </div>
+                     )}
+                   </>
+                 )}
+               </div>
                <button className="final-create-btn" onClick={handleSubmit}>
                  {editingEvent ? 'Save changes' : 'Create'}
                </button>
