@@ -24,7 +24,6 @@ The frontend includes a set of public images that showcase the app UI and brand 
 
 <table>
 	<tr>
-		<td align="center"><img src="frontend/public/logo.png" alt="Candely logo" width="160" /><br />Logo</td>
 		<td align="center"><img src="frontend/public/pfp.png" alt="Profile avatar" width="160" /><br />Profile avatar</td>
 	</tr>
 	<tr>
