@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const [eventTypes, setEventTypes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [panelDropdown, setPanelDropdown] = useState(false);
@@ -118,6 +119,22 @@ const Dashboard = () => {
     toast.info('Link copied!');
   };
 
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredEventTypes = eventTypes.filter((event) => {
+    if (!normalizedSearch) return true;
+    const searchableText = [
+      event.name,
+      event.slug,
+      event.location,
+      event.description,
+      `${event.duration} min`,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return searchableText.includes(normalizedSearch);
+  });
+
   return (
     <div className="dashboard-root animate-fade-in">
       {/* Header Area */}
@@ -137,7 +154,12 @@ const Dashboard = () => {
       <div className="search-section">
         <div className="search-container">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" placeholder="Search event types" />
+          <input
+            type="text"
+            placeholder="Search event types"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 
@@ -165,8 +187,16 @@ const Dashboard = () => {
              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Meeting polls</h2>
              <p style={{ color: 'var(--text-muted)' }}>Find the best time for a group to meet. Coming soon!</p>
           </div>
+        ) : filteredEventTypes.length === 0 ? (
+          <div className="empty-state-fancy" style={{ padding: '4rem', textAlign: 'center', background: '#fafafa', borderRadius: '12px', border: '1px solid var(--border)' }}>
+            <LinkIcon size={48} style={{ opacity: 0.3, marginBottom: '1.5rem' }} />
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>No matching event types</h2>
+            <p style={{ color: 'var(--text-muted)' }}>
+              No results for "{searchTerm}". Try a different keyword.
+            </p>
+          </div>
         ) : (
-          eventTypes.map((event) => (
+          filteredEventTypes.map((event) => (
             <div key={event.id} className="event-item-fancy" onClick={() => openPanel(event)}>
               <div className="color-strip" style={{ backgroundColor: event.color }} />
               <div className="checkbox-area">
