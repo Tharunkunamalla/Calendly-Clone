@@ -18,6 +18,33 @@ Candely is a full-stack scheduling application that allows users to manage event
 - **Meetings Dashboard**: View upcoming and past meetings, with cancellation functionality.
 - **Responsive Design**: Works across Desktop, Tablet, and Mobile.
 
+## UI Preview
+
+The frontend includes a set of public images that showcase the app UI and brand assets.
+
+<table>
+	<tr>
+		<td align="center"><img src="frontend/public/logo.png" alt="Candely logo" width="160" /><br />Logo</td>
+		<td align="center"><img src="frontend/public/pfp.png" alt="Profile avatar" width="160" /><br />Profile avatar</td>
+	</tr>
+	<tr>
+		<td align="center"><img src="frontend/public/image.png" alt="Screenshot 1" width="360" /><br />Screenshot 1</td>
+		<td align="center"><img src="frontend/public/image%20copy.png" alt="Screenshot 2" width="360" /><br />Screenshot 2</td>
+	</tr>
+	<tr>
+		<td align="center"><img src="frontend/public/image%20copy%202.png" alt="Screenshot 3" width="360" /><br />Screenshot 3</td>
+		<td align="center"><img src="frontend/public/image%20copy%203.png" alt="Screenshot 4" width="360" /><br />Screenshot 4</td>
+	</tr>
+	<tr>
+		<td align="center"><img src="frontend/public/image%20copy%204.png" alt="Screenshot 5" width="360" /><br />Screenshot 5</td>
+		<td align="center"><img src="frontend/public/image%20copy%205.png" alt="Screenshot 6" width="360" /><br />Screenshot 6</td>
+	</tr>
+	<tr>
+		<td align="center"><img src="frontend/public/image%20copy%206.png" alt="Screenshot 7" width="360" /><br />Screenshot 7</td>
+		<td align="center"><img src="frontend/public/image%20copy%207.png" alt="Screenshot 8" width="360" /><br />Screenshot 8</td>
+	</tr>
+</table>
+
 ## Setup Instructions
 
 ### 1. Clone the repository
@@ -53,6 +80,13 @@ npm run dev
 ```
 
 The frontend will run on `http://localhost:5173`.
+
+### Demo Login
+
+Use the seeded admin account to sign in:
+
+- Email: `admin@candely.com`
+- Password: `admin123`
 
 ## Assumptions & Design Decisions
 
