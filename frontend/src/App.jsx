@@ -162,15 +162,17 @@ const Sidebar = ({collapsed, setCollapsed}) => {
             style={{
               width: "30px",
               height: "30px",
-              background: "#006bff",
               borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              overflow: "hidden",
               flexShrink: 0,
+              border: "1px solid #e2e8f0",
             }}
           >
-            <Zap size={16} color="white" />
+            <img
+              src="/pfp.png"
+              alt="Profile"
+              style={{width: "100%", height: "100%", objectFit: "cover"}}
+            />
           </div>
           {!collapsed && (
             <span
@@ -347,19 +349,18 @@ const Header = () => {
           <div
             className="header-avatar"
             style={{
-              background: "#006bff",
-              color: "white",
-              border: "none",
               width: "32px",
               height: "32px",
               borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: "bold",
+              overflow: "hidden",
+              border: "1px solid #dbe4f0",
             }}
           >
-            C
+            <img
+              src="/pfp.png"
+              alt="Profile"
+              style={{width: "100%", height: "100%", objectFit: "cover"}}
+            />
           </div>
           <ChevronDown size={14} color="#64748b" />
         </div>
