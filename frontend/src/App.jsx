@@ -484,7 +484,9 @@ const AppContent = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isPublicPage = location.pathname.startsWith("/p/");
   const isLoginPage = location.pathname === "/login";
-  const showSidebar = user && !isPublicPage && !isLoginPage;
+  const isAdminCenterPage = location.pathname.startsWith("/admin-center");
+  const showSidebar =
+    user && !isPublicPage && !isLoginPage && !isAdminCenterPage;
 
   return (
     <div className={`app-layout ${showSidebar ? "with-sidebar" : ""}`}>
@@ -496,7 +498,10 @@ const AppContent = () => {
       )}
       <div className="main-wrapper" style={{background: "white"}}>
         {showSidebar && <Header />}
-        <main className={`content-area`}>
+        <main
+          className={`content-area`}
+          style={isAdminCenterPage ? {padding: 0} : undefined}
+        >
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
