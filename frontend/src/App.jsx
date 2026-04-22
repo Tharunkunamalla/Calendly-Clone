@@ -36,6 +36,7 @@ import {
 import Dashboard from "./pages/Dashboard";
 import Availability from "./pages/Availability";
 import Meetings from "./pages/Meetings";
+import AdminDashboard from "./pages/AdminDashboard";
 import PublicBooking from "./pages/PublicBooking";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import LoginPage from "./pages/LoginPage";
@@ -275,12 +276,15 @@ const Sidebar = ({collapsed, setCollapsed}) => {
           </div>
           {!collapsed && <span>Analytics</span>}
         </div>
-        <div className="sidebar-link-fancy">
+        <Link
+          to="/admin-center"
+          className={`sidebar-link-fancy ${location.pathname === "/admin-center" ? "active" : ""}`}
+        >
           <div className="link-icon">
             <UserIcon size={20} />
           </div>
           {!collapsed && <span>Admin center</span>}
-        </div>
+        </Link>
         <div
           className="sidebar-link-fancy"
           onClick={logout}
@@ -516,6 +520,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <Meetings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-center"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />
