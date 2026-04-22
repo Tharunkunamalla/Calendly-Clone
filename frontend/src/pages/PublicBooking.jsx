@@ -31,7 +31,8 @@ const PublicBooking = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   // Form state
-  const [formData, setFormData] = useState({name: "", email: ""});
+  const [formData, setFormData] = useState({name: "", email: "", phone: ""});
+  const [phoneError, setPhoneError] = useState("");
   const [booking, setBooking] = useState(false);
 
   useEffect(() => {
@@ -69,11 +70,20 @@ const PublicBooking = () => {
 
   const handleBooking = async (e) => {
     e.preventDefault();
+
+    const normalizedPhone = formData.phone.trim();
+    if (!/^\+?[0-9\s()-]{7,20}$/.test(normalizedPhone)) {
+      setPhoneError("A valid phone number is required.");
+      return;
+    }
+
+    setPhoneError("");
     setBooking(true);
     try {
       await meetingApi.book({
         inviteeName: formData.name,
         inviteeEmail: formData.email,
+        inviteePhone: normalizedPhone,
         startTime: selectedSlot,
         eventTypeId: eventType.id,
       });
@@ -412,6 +422,39 @@ const PublicBooking = () => {
                     setFormData({...formData, email: e.target.value})
                   }
                 />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Invitee's phone number *</label>
+                <input
+                  type="tel"
+                  className="form-input"
+                  required
+                  placeholder="+1 555 123 4567"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    setFormData({...formData, phone: e.target.value});
+                    if (phoneError) setPhoneError("");
+                  }}
+                  style={
+                    phoneError
+                      ? {
+                          borderColor: "#dc2626",
+                          boxShadow: "0 0 0 3px rgba(220, 38, 38, 0.12)",
+                        }
+                      : undefined
+                  }
+                />
+                {phoneError && (
+                  <p
+                    style={{
+                      fontSize: "0.84rem",
+                      color: "#dc2626",
+                      marginTop: "0.4rem",
+                    }}
+                  >
+                    {phoneError}
+                  </p>
+                )}
               </div>
               <button
                 type="submit"

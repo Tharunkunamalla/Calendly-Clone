@@ -34,6 +34,7 @@ model Meeting {
   id           String    @id @default(uuid())
   inviteeName  String
   inviteeEmail String
+  inviteePhone String?
   startTime    DateTime
   endTime      DateTime
   status       String    @default("confirmed") // confirmed, cancelled

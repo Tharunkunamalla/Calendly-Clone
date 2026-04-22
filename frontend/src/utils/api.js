@@ -50,4 +50,8 @@ export const meetingApi = {
     api.get("/meetings/slots", {params: {date, eventTypeSlug}}),
 };
 
+export const contactsApi = {
+  getAll: () => api.get("/contacts"),
+};
+
 export default api;

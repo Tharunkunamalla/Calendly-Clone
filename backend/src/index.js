@@ -26,11 +26,13 @@ const eventTypeRoutes = require("./routes/eventTypes");
 const availabilityRoutes = require("./routes/availability");
 const meetingRoutes = require("./routes/meetings");
 const authRoutes = require("./routes/auth");
+const contactsRoutes = require("./routes/contacts");
 
 app.use("/api/event-types", eventTypeRoutes);
 app.use("/api/availability", availabilityRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/contacts", contactsRoutes);
 
 app.get("/health", (req, res) => {
   res.json({status: "ok", database: "connected"});

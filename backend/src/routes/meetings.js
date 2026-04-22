@@ -45,7 +45,7 @@ router.patch('/:id/cancel', async (req, res) => {
 // Book a meeting
 router.post('/', async (req, res) => {
   try {
-    const { inviteeName, inviteeEmail, startTime, eventTypeId } = req.body;
+    const { inviteeName, inviteeEmail, inviteePhone, startTime, eventTypeId } = req.body;
     
     const eventType = await prisma.eventType.findUnique({ where: { id: eventTypeId } });
     if (!eventType) return res.status(404).json({ error: 'Event type not found' });
@@ -74,6 +74,7 @@ router.post('/', async (req, res) => {
       data: {
         inviteeName,
         inviteeEmail,
+        inviteePhone,
         startTime: start,
         endTime: end,
         eventTypeId,

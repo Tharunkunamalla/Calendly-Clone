@@ -197,7 +197,11 @@ const AdminDashboard = () => {
             }}
           >
             <div>
-              <Building2 size={82} color="#86a8cc" style={{marginBottom: "1rem"}} />
+              <Building2
+                size={82}
+                color="#86a8cc"
+                style={{marginBottom: "1rem"}}
+              />
               <h2
                 style={{
                   margin: "0 0 0.9rem",
