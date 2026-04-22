@@ -37,13 +37,19 @@ const buildContactsFromMeetings = (meetings = []) => {
     if (Number.isNaN(meetingStart.getTime())) return;
 
     if (meetingStart <= now) {
-      if (!existing.lastMeetingDate || meetingStart > new Date(existing.lastMeetingDate)) {
+      if (
+        !existing.lastMeetingDate ||
+        meetingStart > new Date(existing.lastMeetingDate)
+      ) {
         existing.lastMeetingDate = meeting.startTime;
       }
       return;
     }
 
-    if (!existing.nextMeetingDate || meetingStart < new Date(existing.nextMeetingDate)) {
+    if (
+      !existing.nextMeetingDate ||
+      meetingStart < new Date(existing.nextMeetingDate)
+    ) {
       existing.nextMeetingDate = meeting.startTime;
     }
   });
