@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const prisma = require('../lib/prisma');
-const auth = require('../middleware/auth');
+const prisma = require("../lib/prisma");
+const auth = require("../middleware/auth");
 
-router.get('/', auth, async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
     const meetings = await prisma.meeting.findMany({
       select: {
@@ -12,38 +12,47 @@ router.get('/', auth, async (req, res) => {
         inviteePhone: true,
         startTime: true,
       },
-      orderBy: { startTime: 'desc' },
+      orderBy: {startTime: "desc"},
     });
 
     const now = new Date();
     const contactsMap = new Map();
 
     meetings.forEach((meeting) => {
-      const emailKey = (meeting.inviteeEmail || '').toLowerCase();
+      const emailKey = (meeting.inviteeEmail || "").toLowerCase();
       if (!emailKey) return;
 
       if (!contactsMap.has(emailKey)) {
         contactsMap.set(emailKey, {
           name: meeting.inviteeName,
           email: meeting.inviteeEmail,
-          phoneNumber: meeting.inviteePhone || '',
+          phoneNumber: meeting.inviteePhone || "",
           lastMeetingDate: null,
           nextMeetingDate: null,
-          company: '',
+          company: "",
         });
       }
 
       const contact = contactsMap.get(emailKey);
 
-      if ((!contact.phoneNumber || contact.phoneNumber.length === 0) && meeting.inviteePhone) {
+      if (
+        (!contact.phoneNumber || contact.phoneNumber.length === 0) &&
+        meeting.inviteePhone
+      ) {
         contact.phoneNumber = meeting.inviteePhone;
       }
 
       if (meeting.startTime <= now) {
-        if (!contact.lastMeetingDate || meeting.startTime > new Date(contact.lastMeetingDate)) {
+        if (
+          !contact.lastMeetingDate ||
+          meeting.startTime > new Date(contact.lastMeetingDate)
+        ) {
           contact.lastMeetingDate = meeting.startTime;
         }
-      } else if (!contact.nextMeetingDate || meeting.startTime < new Date(contact.nextMeetingDate)) {
+      } else if (
+        !contact.nextMeetingDate ||
+        meeting.startTime < new Date(contact.nextMeetingDate)
+      ) {
         contact.nextMeetingDate = meeting.startTime;
       }
     });
@@ -54,7 +63,7 @@ router.get('/', auth, async (req, res) => {
 
     res.json(contacts);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({error: error.message});
   }
 });
 

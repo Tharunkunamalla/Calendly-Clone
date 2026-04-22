@@ -1,7 +1,7 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {format} from "date-fns";
 import {Search, Eye, Filter, Plus, MoreVertical} from "lucide-react";
-import {contactsApi} from "../utils/api";
+import {contactsApi, meetingApi} from "../utils/api";
 import {toast} from "react-toastify";
 
 const formatDateCell = (value) => {
@@ -9,21 +9,84 @@ const formatDateCell = (value) => {
   return format(new Date(value), "M/d/yyyy");
 };
 
+const buildContactsFromMeetings = (meetings = []) => {
+  const now = new Date();
+  const contactsMap = new Map();
+
+  meetings.forEach((meeting) => {
+    const emailKey = (meeting?.inviteeEmail || "").toLowerCase();
+    if (!emailKey) return;
+
+    if (!contactsMap.has(emailKey)) {
+      contactsMap.set(emailKey, {
+        name: meeting.inviteeName || "",
+        email: meeting.inviteeEmail || "",
+        phoneNumber: meeting.inviteePhone || "",
+        lastMeetingDate: null,
+        nextMeetingDate: null,
+        company: "",
+      });
+    }
+
+    const existing = contactsMap.get(emailKey);
+    if (!existing.phoneNumber && meeting.inviteePhone) {
+      existing.phoneNumber = meeting.inviteePhone;
+    }
+
+    const meetingStart = new Date(meeting.startTime);
+    if (Number.isNaN(meetingStart.getTime())) return;
+
+    if (meetingStart <= now) {
+      if (!existing.lastMeetingDate || meetingStart > new Date(existing.lastMeetingDate)) {
+        existing.lastMeetingDate = meeting.startTime;
+      }
+      return;
+    }
+
+    if (!existing.nextMeetingDate || meetingStart < new Date(existing.nextMeetingDate)) {
+      existing.nextMeetingDate = meeting.startTime;
+    }
+  });
+
+  return Array.from(contactsMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+};
+
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const hasShownError = useRef(false);
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
         const {data} = await contactsApi.getAll();
         setContacts(data);
-      } catch (error) {
-        const message =
-          error?.response?.data?.error ||
-          "Could not load contacts. Please try again.";
-        toast.error(message);
+      } catch (contactsError) {
+        try {
+          const [upcomingResponse, pastResponse] = await Promise.all([
+            meetingApi.getUpcoming(),
+            meetingApi.getPast(),
+          ]);
+
+          const mergedMeetings = [
+            ...(upcomingResponse?.data || []),
+            ...(pastResponse?.data || []),
+          ];
+
+          setContacts(buildContactsFromMeetings(mergedMeetings));
+        } catch (fallbackError) {
+          if (!hasShownError.current) {
+            const message =
+              fallbackError?.response?.data?.error ||
+              contactsError?.response?.data?.error ||
+              "Could not load contacts. Please try again.";
+            toast.error(message);
+            hasShownError.current = true;
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -46,7 +109,10 @@ const Contacts = () => {
   }, [contacts, search]);
 
   return (
-    <div className="animate-fade-in" style={{background: "#fff", minHeight: "100%"}}>
+    <div
+      className="animate-fade-in"
+      style={{background: "#fff", minHeight: "100%"}}
+    >
       <header
         style={{
           minHeight: "72px",
@@ -58,7 +124,14 @@ const Contacts = () => {
           marginBottom: "1.6rem",
         }}
       >
-        <h1 style={{fontSize: "2rem", fontWeight: 800, color: "#0f2d4d", margin: 0}}>
+        <h1
+          style={{
+            fontSize: "2rem",
+            fontWeight: 800,
+            color: "#0f2d4d",
+            margin: 0,
+          }}
+        >
           Contacts
         </h1>
         <button
@@ -98,7 +171,12 @@ const Contacts = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name and email"
-            style={{border: "none", outline: "none", width: "100%", color: "#334155"}}
+            style={{
+              border: "none",
+              outline: "none",
+              width: "100%",
+              color: "#334155",
+            }}
           />
         </div>
 
@@ -137,8 +215,20 @@ const Contacts = () => {
         </button>
       </div>
 
-      <div style={{border: "1px solid #c8d7ea", borderRadius: "8px", overflow: "hidden"}}>
-        <table style={{width: "100%", borderCollapse: "collapse", background: "#fff"}}>
+      <div
+        style={{
+          border: "1px solid #c8d7ea",
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            background: "#fff",
+          }}
+        >
           <thead>
             <tr style={{background: "#f8fbff"}}>
               {[
@@ -193,22 +283,52 @@ const Contacts = () => {
             ) : (
               filteredContacts.map((contact) => (
                 <tr key={contact.email}>
-                  <td style={{padding: "0.82rem 0.85rem", borderBottom: "1px solid #e2e8f0"}}>
+                  <td
+                    style={{
+                      padding: "0.82rem 0.85rem",
+                      borderBottom: "1px solid #e2e8f0",
+                    }}
+                  >
                     {contact.name}
                   </td>
-                  <td style={{padding: "0.82rem 0.85rem", borderBottom: "1px solid #e2e8f0"}}>
+                  <td
+                    style={{
+                      padding: "0.82rem 0.85rem",
+                      borderBottom: "1px solid #e2e8f0",
+                    }}
+                  >
                     {contact.email}
                   </td>
-                  <td style={{padding: "0.82rem 0.85rem", borderBottom: "1px solid #e2e8f0"}}>
+                  <td
+                    style={{
+                      padding: "0.82rem 0.85rem",
+                      borderBottom: "1px solid #e2e8f0",
+                    }}
+                  >
                     {contact.phoneNumber || ""}
                   </td>
-                  <td style={{padding: "0.82rem 0.85rem", borderBottom: "1px solid #e2e8f0"}}>
+                  <td
+                    style={{
+                      padding: "0.82rem 0.85rem",
+                      borderBottom: "1px solid #e2e8f0",
+                    }}
+                  >
                     {formatDateCell(contact.lastMeetingDate)}
                   </td>
-                  <td style={{padding: "0.82rem 0.85rem", borderBottom: "1px solid #e2e8f0"}}>
+                  <td
+                    style={{
+                      padding: "0.82rem 0.85rem",
+                      borderBottom: "1px solid #e2e8f0",
+                    }}
+                  >
                     {formatDateCell(contact.nextMeetingDate)}
                   </td>
-                  <td style={{padding: "0.82rem 0.85rem", borderBottom: "1px solid #e2e8f0"}}>
+                  <td
+                    style={{
+                      padding: "0.82rem 0.85rem",
+                      borderBottom: "1px solid #e2e8f0",
+                    }}
+                  >
                     {contact.company || ""}
                   </td>
                 </tr>
