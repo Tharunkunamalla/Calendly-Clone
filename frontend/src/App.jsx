@@ -536,6 +536,22 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin-center/users"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-center/groups"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/p/:slug" element={<PublicBooking />} />
             <Route path="/p/:slug/confirm" element={<BookingConfirmation />} />
             <Route path="*" element={<Navigate to="/" />} />
